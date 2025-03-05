@@ -27,30 +27,27 @@ const GameBoard: React.FC = () => {
   const handleScoreSubmit = (score: number) => {
     if (!game || gameOver) return;
     
-    game.recordScore(score);
+    // Create a deep copy of the current game
+    const updatedGame = new Game(game.type, game.startingScore);
     
-    // Force a re-render by creating a new Game instance with the same properties
-    setGame(new Game(game.type, game.startingScore));
-    
-    // Copy players and state from the existing game
+    // Copy all players with their current scores
     game.players.forEach(player => {
-      setGame(prevGame => {
-        if (!prevGame) return prevGame;
-        prevGame.addPlayer(player.name);
-        prevGame.players[prevGame.players.length - 1].score = player.score;
-        return prevGame;
-      });
+      updatedGame.addPlayer(player.name);
+      // Set the score to match the original player's score
+      updatedGame.players[updatedGame.players.length - 1].score = player.score;
     });
     
-    setGame(prevGame => {
-      if (!prevGame) return prevGame;
-      prevGame.currentPlayerIndex = game.currentPlayerIndex;
-      prevGame.isGameOver = game.isGameOver;
-      prevGame.winner = game.winner;
-      return prevGame;
-    });
+    // Set the current player index to match the original game
+    updatedGame.currentPlayerIndex = game.currentPlayerIndex;
     
-    if (game.isGameOver) {
+    // Record the score in the updated game
+    updatedGame.recordScore(score);
+    
+    // Update the game state
+    setGame(updatedGame);
+    
+    // Check if the game is over
+    if (updatedGame.isGameOver) {
       setGameOver(true);
     }
   };
@@ -58,18 +55,15 @@ const GameBoard: React.FC = () => {
   const handleResetGame = () => {
     if (!game) return;
     
-    game.reset();
-    setGame(new Game(game.type, game.startingScore));
+    // Create a new game with the same settings
+    const resetGame = new Game(game.type, game.startingScore);
     
-    // Copy players from the existing game
+    // Add all players with reset scores
     game.players.forEach(player => {
-      setGame(prevGame => {
-        if (!prevGame) return prevGame;
-        prevGame.addPlayer(player.name);
-        return prevGame;
-      });
+      resetGame.addPlayer(player.name);
     });
     
+    setGame(resetGame);
     setGameOver(false);
   };
 
