@@ -16,10 +16,17 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
   const [playerNames, setPlayerNames] = useState<string[]>([]);
 
   const handleAddPlayer = () => {
-    if (playerName.trim()) {
-      setPlayerNames([...playerNames, playerName.trim()]);
-      setPlayerName('');
+    const trimmedName = playerName.trim();
+
+    if (!trimmedName) return; // Prevent adding empty names
+
+    if (playerNames.includes(trimmedName)) {
+      alert('This name is already taken. Please choose a different name.');
+      return;
     }
+
+    setPlayerNames([...playerNames, trimmedName]);
+    setPlayerName('');
   };
 
   const handleRemovePlayer = (index: number) => {
