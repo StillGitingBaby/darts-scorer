@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface ScoreInputProps {
   onScoreSubmit: (score: number) => void;
 }
 
 const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
-  const [score, setScore] = useState<string>('');
-  const [isListening, setIsListening] = useState<boolean>(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [score, setScore] = useState<string>(''); // To track the current score being typed or spoken
+  const [isListening, setIsListening] = useState<boolean>(false); // To track the listening state
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null); // Speech recognition instance
+  const [spokenScores, setSpokenScores] = useState<number[]>([]); // To store individual scores spoken by the user
+  const [lastThreeScores, setLastThreeScores] = useState<number[]>([]); // To store the last 3 scores for display
+
+  const scoreInputRef = useRef<HTMLInputElement>(null); // Ref for the input field
 
   useEffect(() => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
@@ -20,8 +24,14 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
         const speechToText = event.results[0][0].transcript;
         const numericScore = parseInt(speechToText);
         if (!isNaN(numericScore) && numericScore >= 0) {
-          setScore(speechToText);
-          onScoreSubmit(numericScore);
+          // Accumulate the spoken scores and store the last 3 scores
+          setSpokenScores((prevScores) => {
+            const updatedScores = [...prevScores, numericScore];
+            // Update last three scores
+            const updatedLastThreeScores = [...updatedScores].slice(-3);
+            setLastThreeScores(updatedLastThreeScores);
+            return updatedScores;
+          });
         }
       };
 
@@ -37,15 +47,23 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const numericScore = parseInt(score);
-    if (!isNaN(numericScore) && numericScore >= 0) {
-      onScoreSubmit(numericScore);
-      setScore('');
+    // Sum up all the scores in spokenScores
+    const totalScore = spokenScores.reduce((sum, current) => sum + current, 0);
+    if (totalScore >= 0) {
+      onScoreSubmit(totalScore);
+      // Reset the spoken scores after submission
+      setSpokenScores([]);
     }
   };
 
   const handleQuickScore = (value: number) => {
-    onScoreSubmit(value);
+    setSpokenScores((prevScores) => {
+      const updatedScores = [...prevScores, value];
+      // Update last three scores
+      const updatedLastThreeScores = [...updatedScores].slice(-3);
+      setLastThreeScores(updatedLastThreeScores);
+      return updatedScores;
+    });
   };
 
   const toggleListening = () => {
@@ -54,6 +72,10 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
         recognition.stop();
       } else {
         recognition.start();
+        // Focus on the score input field when listening starts
+        if (scoreInputRef.current) {
+          scoreInputRef.current.focus();
+        }
       }
       setIsListening(!isListening);
     }
@@ -79,6 +101,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
             </label>
             <input
                 id="score-input"
+                ref={scoreInputRef} // Attach the ref to the input
                 type="number"
                 value={score}
                 onChange={(e) => setScore(e.target.value)}
@@ -116,6 +139,21 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
           >
             {isListening ? 'Stop Listening' : 'Start Listening'}
           </button>
+        </div>
+
+        <div className="mt-4">
+          <h3 className="font-medium mb-2">Total Score: {spokenScores.reduce((sum, current) => sum + current, 0)}</h3>
+        </div>
+
+        <div className="mt-4">
+          <h3 className="font-medium mb-2">Last 3 Dart Attempts:</h3>
+          <ul>
+            {lastThreeScores.map((score, index) => (
+                <li key={index}>
+                  Dart {index + 1}: {score}
+                </li>
+            ))}
+          </ul>
         </div>
       </div>
   );
