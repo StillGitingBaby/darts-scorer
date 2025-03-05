@@ -12,26 +12,33 @@ interface GameSetupProps {
 const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
   const [gameType, setGameType] = useState<GameType>(GameType.X01);
   const [startingScore, setStartingScore] = useState<number>(501);
-  const [playerName, setPlayerName] = useState<string>('');
-  const [playerNames, setPlayerNames] = useState<string[]>([]);
+  const [inputPlayer, setInputPlayer] = useState<string>('');
+  const [ExistingPlayers, setExistingPlayers] = useState<string[]>([]);
 
   const handleAddPlayer = () => {
-    if (playerName.trim()) {
-      setPlayerNames([...playerNames, playerName.trim()]);
-      setPlayerName('');
+    const trimmedName = inputPlayer.trim();
+
+    if (!trimmedName) return; // Prevent adding empty names
+
+    if (ExistingPlayers.includes(trimmedName)) {
+      alert('This name is already taken. Please choose a different name.');
+      return;
     }
+
+    setExistingPlayers([...ExistingPlayers, trimmedName]);
+    setInputPlayer('');
   };
 
   const handleRemovePlayer = (index: number) => {
-    setPlayerNames(playerNames.filter((_, i) => i !== index));
+    setExistingPlayers(ExistingPlayers.filter((_, i) => i !== index));
   };
 
   const handleStartGame = () => {
-    if (playerNames.length > 0) {
+    if (ExistingPlayers.length > 0) {
       onGameStart({
         gameType,
         startingScore,
-        playerNames,
+        playerNames: ExistingPlayers,
       });
     }
   };
@@ -83,8 +90,8 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
           <input
             id="player-name"
             type="text"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
+            value={inputPlayer}
+            onChange={(e) => setInputPlayer(e.target.value)}
             className="flex-1 border rounded px-3 py-2 mr-2"
           />
           <button
@@ -96,11 +103,11 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
         </div>
       </div>
       
-      {playerNames.length > 0 && (
+      {ExistingPlayers.length > 0 && (
         <div className="mb-4">
           <h3 className="font-medium mb-2">Players:</h3>
           <ul className="border rounded divide-y">
-            {playerNames.map((name, index) => (
+            {ExistingPlayers.map((name, index) => (
               <li
                 key={index}
                 data-testid="player-item"
@@ -121,9 +128,9 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
       
       <button
         onClick={handleStartGame}
-        disabled={playerNames.length === 0}
+        disabled={ExistingPlayers.length === 0}
         className={`w-full py-2 rounded text-white font-medium ${
-          playerNames.length === 0
+          ExistingPlayers.length === 0
             ? 'bg-gray-400 cursor-not-allowed'
             : 'bg-blue-600 hover:bg-blue-700'
         }`}
