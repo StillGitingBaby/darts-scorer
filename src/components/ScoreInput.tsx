@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 interface ScoreInputProps {
-  onScoreSubmit: (score: number) => void;
+  onScoreSubmit: (score: number, dartScores: number[]) => void; // Pass both total score and individual dart scores
 }
 
 const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
-  const [score, setScore] = useState<string>(''); // To track the current score being typed or spoken
-  const [isListening, setIsListening] = useState<boolean>(false); // To track the listening state
+  const [isListening, setIsListening] = useState<boolean>(false); // Track listening state
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null); // Speech recognition instance
-  const [spokenScores, setSpokenScores] = useState<number[]>([]); // To store individual scores spoken by the user
-  const [lastThreeScores, setLastThreeScores] = useState<number[]>([]); // To store the last 3 scores for display
-
+  const [dartScores, setDartScores] = useState<number[]>([]); // Store the scores for each dart
+  const [dartCount, setDartCount] = useState<number>(0); // Track number of darts recorded
   const scoreInputRef = useRef<HTMLInputElement>(null); // Ref for the input field
 
   useEffect(() => {
@@ -22,15 +20,20 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
 
       recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
         const speechToText = event.results[0][0].transcript;
-        const numericScore = parseInt(speechToText);
-        if (!isNaN(numericScore) && numericScore >= 0) {
-          // Accumulate the spoken scores and store the last 3 scores
-          setSpokenScores((prevScores) => {
-            const updatedScores = [...prevScores, numericScore];
-            // Update last three scores
-            const updatedLastThreeScores = [...updatedScores].slice(-3);
-            setLastThreeScores(updatedLastThreeScores);
+        const score = processSpeechToScore(speechToText);
+
+        if (score !== null && dartCount < 3) {
+          // Record the score for the current dart attempt
+          setDartScores((prevScores) => {
+            const updatedScores = [...prevScores, score];
             return updatedScores;
+          });
+          setDartCount((prevCount) => {
+            if (prevCount + 1 === 3) {
+              // Stop listening after 3 darts
+              recognitionInstance.stop();
+            }
+            return prevCount + 1;
           });
         }
       };
@@ -43,27 +46,26 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
     } else {
       console.warn('Speech recognition not supported in this browser.');
     }
-  }, []);
+  }, [dartCount]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Sum up all the scores in spokenScores
-    const totalScore = spokenScores.reduce((sum, current) => sum + current, 0);
-    if (totalScore >= 0) {
-      onScoreSubmit(totalScore);
-      // Reset the spoken scores after submission
-      setSpokenScores([]);
+    const totalScore = dartScores.reduce((sum, current) => sum + current, 0);
+    if (dartScores.length === 3) {
+      onScoreSubmit(totalScore, dartScores);
+      setDartScores([]); // Reset the dart scores after submission
+      setDartCount(0); // Reset dart count
     }
   };
 
   const handleQuickScore = (value: number) => {
-    setSpokenScores((prevScores) => {
-      const updatedScores = [...prevScores, value];
-      // Update last three scores
-      const updatedLastThreeScores = [...updatedScores].slice(-3);
-      setLastThreeScores(updatedLastThreeScores);
-      return updatedScores;
-    });
+    if (dartCount < 3) {
+      setDartScores((prevScores) => {
+        const updatedScores = [...prevScores, value];
+        return updatedScores;
+      });
+      setDartCount((prevCount) => prevCount + 1);
+    }
   };
 
   const toggleListening = () => {
@@ -90,6 +92,21 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
     50, 51, 54, 57, 60
   ];
 
+  // Function to process speech input and handle 'double' and 'treble' cases
+  const processSpeechToScore = (speech: string): number | null => {
+    // Check for "double" or "treble" in the speech
+    const match = speech.match(/(double|treble)\s*(\d+)/i);
+    if (match) {
+      const multiplier = match[1].toLowerCase() === 'double' ? 2 : match[1].toLowerCase() === 'treble' ? 3 : 1;
+      const score = parseInt(match[2], 10);
+      return score * multiplier;
+    }
+
+    // If no match, return the number itself
+    const number = parseInt(speech, 10);
+    return isNaN(number) ? null : number;
+  };
+
   return (
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-2">Score Input</h2>
@@ -103,10 +120,9 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
                 id="score-input"
                 ref={scoreInputRef} // Attach the ref to the input
                 type="number"
-                value={score}
-                onChange={(e) => setScore(e.target.value)}
                 className="border rounded px-3 py-2 w-20 mr-2"
-                min="0"
+                disabled
+                value={dartScores.join(', ')} // Display all dart scores
             />
             <button
                 type="submit"
@@ -142,16 +158,14 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
         </div>
 
         <div className="mt-4">
-          <h3 className="font-medium mb-2">Total Score: {spokenScores.reduce((sum, current) => sum + current, 0)}</h3>
+          <h3 className="font-medium mb-2">Total Score: {dartScores.reduce((sum, current) => sum + current, 0)}</h3>
         </div>
 
         <div className="mt-4">
-          <h3 className="font-medium mb-2">Last 3 Dart Attempts:</h3>
+          <h3 className="font-medium mb-2">Dart Attempts:</h3>
           <ul>
-            {lastThreeScores.map((score, index) => (
-                <li key={index}>
-                  Dart {index + 1}: {score}
-                </li>
+            {dartScores.map((score, index) => (
+                <li key={index}>Dart {index + 1}: {score}</li>
             ))}
           </ul>
         </div>
