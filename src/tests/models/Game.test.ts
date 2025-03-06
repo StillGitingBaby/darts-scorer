@@ -101,4 +101,57 @@ describe('Game', () => {
     expect(game.isGameOver).toBe(false);
     expect(game.winner).toBeNull();
   });
+
+  it('should not allow negative starting scores', () => {
+    expect(() => new Game(GameType.X01, -501)).toThrow('Starting score must be positive');
+  });
+
+  it('should not allow non-numeric starting scores', () => {
+    expect(() => new Game(GameType.X01, NaN)).toThrow('Starting score must be a valid number');
+  });
+
+
+  it('should validate double-out rule in X01 games', () => {
+    const game = new Game(GameType.X01, 40, true); // Enable double-out rule
+    game.addPlayer('John');
+    
+    // Try to finish with a non-double
+    game.recordScore(39); // Score 39, leaving 1
+    expect(game.players[0].score).toBe(40); // Score should not change
+    expect(game.isGameOver).toBe(false);
+    
+    // Try to finish with a double
+    game.recordScore(40); // Double 20
+    expect(game.players[0].score).toBe(0);
+    expect(game.isGameOver).toBe(true);
+  });
+
+  it('should track game history', () => {
+    const game = new Game(GameType.X01, 501);
+    game.addPlayer('John');
+    game.addPlayer('Jane');
+    
+    game.recordScore(60); // John throws 60
+    game.recordScore(45); // Jane throws 45
+    
+    expect(game.getScoreHistory()).toEqual([
+      { playerName: 'John', score: 60, remainingScore: 441 },
+      { playerName: 'Jane', score: 45, remainingScore: 456 }
+    ]);
+  });
+
+  it('should validate bust scenarios in X01 games', () => {
+    const game = new Game(GameType.X01, 50);
+    game.addPlayer('John');
+    
+    // Try to score more than remaining points
+    game.recordScore(60);
+    expect(game.players[0].score).toBe(50); // Score should remain unchanged
+    expect(game.currentPlayerIndex).toBe(0); // Player should get another turn
+    
+    // Try to score exactly the remaining points
+    game.recordScore(50);
+    expect(game.players[0].score).toBe(0);
+    expect(game.isGameOver).toBe(true);
+  });
 }); 
