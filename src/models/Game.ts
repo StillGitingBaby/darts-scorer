@@ -21,7 +21,6 @@ export class Game {
   winner: Player | null = null;
   private scoreHistory: ScoreHistoryEntry[] = [];
   private doubleOutRequired: boolean;
-  private readonly MAX_PLAYERS = 4;
 
   constructor(type: GameType, startingScore: number, doubleOutRequired: boolean = false) {
     if (startingScore <= 0) {
