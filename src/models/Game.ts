@@ -37,9 +37,6 @@ export class Game {
   }
 
   addPlayer(name: string): void {
-    if (this.players.length >= this.MAX_PLAYERS) {
-      throw new Error('Maximum number of players reached');
-    }
     if (this.players.some(p => p.name === name)) {
       throw new Error('Player name must be unique');
     }
