@@ -32,8 +32,6 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
 
 
 
-  // Common dart scores for quick input
-
 
   return (
     <div className="mt-6">

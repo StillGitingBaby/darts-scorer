@@ -50,19 +50,7 @@ describe('ScoreInput', () => {
     expect(input.value).toBe('');
   });
   
-  it('should provide quick score buttons', () => {
-    const onScoreSubmit = jest.fn();
-    render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
-    
-    const quickButtons = screen.getAllByRole('button');
-    expect(quickButtons.length).toBeGreaterThan(1); // At least Submit + some quick buttons
-    
-    // Find and click a quick score button (e.g., 20)
-    const twentyButton = screen.getByRole('button', { name: '20' });
-    fireEvent.click(twentyButton);
-    
-    expect(onScoreSubmit).toHaveBeenCalledWith(20);
-  });
+
 
   // New tests for impossible scores validation
   it('should not call onScoreSubmit when an impossible score is entered', () => {
