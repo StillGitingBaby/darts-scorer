@@ -50,9 +50,7 @@ describe('ScoreInput', () => {
     expect(input.value).toBe('');
   });
   
-
-
-  // New tests for impossible scores validation
+  // Tests for impossible scores validation
   it('should not call onScoreSubmit when an impossible score is entered', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
@@ -83,4 +81,5 @@ describe('ScoreInput', () => {
       expect(onScoreSubmit).not.toHaveBeenCalled();
       expect(screen.getByRole('alert')).toHaveTextContent(`${impossibleScore} is not a possible 3-dart score`);
     }
-  })
+  });
+});
