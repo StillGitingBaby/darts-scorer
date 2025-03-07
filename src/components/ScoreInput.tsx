@@ -15,19 +15,27 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
     return !IMPOSSIBLE_SCORES.includes(score) && score <= MAX_POSSIBLE_SCORE;
   };
 
+  const getErrorMessage = (score: number): string => {
+    if (score > MAX_POSSIBLE_SCORE) {
+      return `${score} exceeds maximum possible score of ${MAX_POSSIBLE_SCORE}`;
+    }
+    if (IMPOSSIBLE_SCORES.includes(score)) {
+      return `${score} is not a possible 3-dart score`;
+    }
+    return '';
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const numericScore = parseInt(score);
     
     if (!isNaN(numericScore) && numericScore >= 0) {
-      if (numericScore > MAX_POSSIBLE_SCORE) {
-        setError(`${numericScore} exceeds maximum possible score of ${MAX_POSSIBLE_SCORE}`);
-      } else if (IMPOSSIBLE_SCORES.includes(numericScore)) {
-        setError(`${numericScore} is not a possible 3-dart score`);
-      } else {
+      if (isValidScore(numericScore)) {
         onScoreSubmit(numericScore);
         setScore('');
         setError('');
+      } else {
+        setError(getErrorMessage(numericScore));
       }
     }
   };
