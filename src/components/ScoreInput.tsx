@@ -6,13 +6,15 @@ interface ScoreInputProps {
 
 // List of impossible 3-dart scores
 const IMPOSSIBLE_SCORES = [179, 178, 176, 175, 173, 172, 169, 166, 163];
+const MAX_POSSIBLE_SCORE = 180; // Maximum possible score (three triple 20s)
 
 const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
   const [score, setScore] = useState<string>('');
   const [error, setError] = useState<string>('');
 
   const isValidScore = (score: number): boolean => {
-    return !IMPOSSIBLE_SCORES.includes(score);
+    // Check if score is not in the impossible scores list and not greater than 180
+    return !IMPOSSIBLE_SCORES.includes(score) && score <= MAX_POSSIBLE_SCORE;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -20,18 +22,17 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
     const numericScore = parseInt(score);
     
     if (!isNaN(numericScore) && numericScore >= 0) {
-      if (isValidScore(numericScore)) {
+      if (numericScore > MAX_POSSIBLE_SCORE) {
+        setError(`${numericScore} exceeds maximum possible score of ${MAX_POSSIBLE_SCORE}`);
+      } else if (IMPOSSIBLE_SCORES.includes(numericScore)) {
+        setError(`${numericScore} is not a possible 3-dart score`);
+      } else {
         onScoreSubmit(numericScore);
         setScore('');
         setError('');
-      } else {
-        setError(`${numericScore} is not a possible 3-dart score`);
       }
     }
   };
-
-
-
 
   return (
     <div className="mt-6">
@@ -49,6 +50,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
             onChange={(e) => setScore(e.target.value)}
             className="border rounded px-3 py-2 w-20 mr-2"
             min="0"
+            max={MAX_POSSIBLE_SCORE}
           />
           <button
             type="submit"
