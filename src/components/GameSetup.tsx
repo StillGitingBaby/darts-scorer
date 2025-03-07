@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { GameType } from '../models/Game';
 
 interface GameSetupProps {
@@ -46,7 +47,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">Game Setup</h2>
-      
+
       <div className="mb-4">
         <label htmlFor="game-type" className="block mb-1 font-medium">
           Game Type:
@@ -54,7 +55,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
         <select
           id="game-type"
           value={gameType}
-          onChange={(e) => setGameType(e.target.value as GameType)}
+          onChange={e => setGameType(e.target.value as GameType)}
           className="w-full border rounded px-3 py-2"
         >
           <option value={GameType.X01}>X01</option>
@@ -62,7 +63,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
           <option value={GameType.AroundTheClock}>Around the Clock</option>
         </select>
       </div>
-      
+
       {gameType === GameType.X01 && (
         <div className="mb-4">
           <label htmlFor="starting-score" className="block mb-1 font-medium">
@@ -71,7 +72,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
           <select
             id="starting-score"
             value={startingScore}
-            onChange={(e) => setStartingScore(parseInt(e.target.value))}
+            onChange={e => setStartingScore(parseInt(e.target.value))}
             className="w-full border rounded px-3 py-2"
           >
             <option value={301}>301</option>
@@ -81,7 +82,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
           </select>
         </div>
       )}
-      
+
       <div className="mb-4">
         <label htmlFor="player-name" className="block mb-1 font-medium">
           Player Name:
@@ -91,7 +92,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
             id="player-name"
             type="text"
             value={inputPlayer}
-            onChange={(e) => setInputPlayer(e.target.value)}
+            onChange={e => setInputPlayer(e.target.value)}
             className="flex-1 border rounded px-3 py-2 mr-2"
           />
           <button
@@ -102,7 +103,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
           </button>
         </div>
       </div>
-      
+
       {ExistingPlayers.length > 0 && (
         <div className="mb-4">
           <h3 className="font-medium mb-2">Players:</h3>
@@ -125,7 +126,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
           </ul>
         </div>
       )}
-      
+
       <button
         onClick={handleStartGame}
         disabled={ExistingPlayers.length === 0}
@@ -141,4 +142,4 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
   );
 };
 
-export default GameSetup; 
+export default GameSetup;

@@ -15,7 +15,7 @@ describe('Player', () => {
     const player = new Player('John');
     player.addScore(50);
     expect(player.score).toBe(50);
-    
+
     player.addScore(25);
     expect(player.score).toBe(75);
   });
@@ -42,4 +42,4 @@ describe('Player', () => {
     const player = new Player('John', 501);
     expect(player.score).toBe(501);
   });
-}); 
+});

@@ -28,7 +28,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const numericScore = parseInt(score);
-    
+
     if (!isNaN(numericScore) && numericScore >= 0) {
       if (isValidScore(numericScore)) {
         onScoreSubmit(numericScore);
@@ -43,7 +43,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
   return (
     <div className="mt-6">
       <h2 className="text-xl font-semibold mb-2">Score Input</h2>
-      
+
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="flex items-center">
           <label htmlFor="score-input" className="mr-2 font-medium">
@@ -53,7 +53,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
             id="score-input"
             type="number"
             value={score}
-            onChange={(e) => setScore(e.target.value)}
+            onChange={e => setScore(e.target.value)}
             className="border rounded px-3 py-2 w-20 mr-2"
             min="0"
             max={MAX_POSSIBLE_SCORE}
@@ -71,9 +71,8 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
           </div>
         )}
       </form>
-
     </div>
   );
 };
 
-export default ScoreInput; 
+export default ScoreInput;
