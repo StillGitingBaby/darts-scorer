@@ -46,10 +46,6 @@ describe('Darts Scorer System Test', () => {
       // Verify the score input form is displayed
       expect(screen.getByLabelText('Enter Score:')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
-      
-      // Verify quick score buttons are displayed
-      expect(screen.getByText('Quick Score')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: '60' })).toBeInTheDocument();
     });
     
     // Check that Player 1 is highlighted as the current player

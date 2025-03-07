@@ -50,17 +50,36 @@ describe('ScoreInput', () => {
     expect(input.value).toBe('');
   });
   
-  it('should provide quick score buttons', () => {
+  // Tests for impossible scores validation
+  it('should not call onScoreSubmit when an impossible score is entered', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
     
-    const quickButtons = screen.getAllByRole('button');
-    expect(quickButtons.length).toBeGreaterThan(1); // At least Submit + some quick buttons
+    const input = screen.getByLabelText('Enter Score:');
+    fireEvent.change(input, { target: { value: '179' } });
     
-    // Find and click a quick score button (e.g., 20)
-    const twentyButton = screen.getByRole('button', { name: '20' });
-    fireEvent.click(twentyButton);
+    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    fireEvent.click(submitButton);
     
-    expect(onScoreSubmit).toHaveBeenCalledWith(20);
+    expect(onScoreSubmit).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('179 is not a possible 3-dart score');
   });
-}); 
+
+  it('should display an error message for impossible scores', () => {
+    const onScoreSubmit = jest.fn();
+    render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
+    
+    // Test multiple impossible scores
+    const impossibleScores = [179, 178, 176, 175, 173, 172, 169, 166, 163];
+    const input = screen.getByLabelText('Enter Score:');
+    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    
+    for (const impossibleScore of impossibleScores) {
+      fireEvent.change(input, { target: { value: impossibleScore.toString() } });
+      fireEvent.click(submitButton);
+      
+      expect(onScoreSubmit).not.toHaveBeenCalled();
+      expect(screen.getByRole('alert')).toHaveTextContent(`${impossibleScore} is not a possible 3-dart score`);
+    }
+  });
+});
