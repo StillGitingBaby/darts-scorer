@@ -4,31 +4,36 @@ interface ScoreInputProps {
   onScoreSubmit: (score: number) => void;
 }
 
+// List of impossible 3-dart scores
+const IMPOSSIBLE_SCORES = [179, 178, 176, 175, 173, 172, 169, 166, 163];
+
 const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
   const [score, setScore] = useState<string>('');
+  const [error, setError] = useState<string>('');
+
+  const isValidScore = (score: number): boolean => {
+    return !IMPOSSIBLE_SCORES.includes(score);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const numericScore = parseInt(score);
     
     if (!isNaN(numericScore) && numericScore >= 0) {
-      onScoreSubmit(numericScore);
-      setScore('');
+      if (isValidScore(numericScore)) {
+        onScoreSubmit(numericScore);
+        setScore('');
+        setError('');
+      } else {
+        setError(`${numericScore} is not a possible 3-dart score`);
+      }
     }
   };
 
-  const handleQuickScore = (value: number) => {
-    onScoreSubmit(value);
-  };
+
 
   // Common dart scores for quick input
-  const quickScores = [
-    0, 1, 2, 3, 4, 5, 
-    6, 7, 8, 9, 10, 11, 
-    12, 13, 14, 15, 16, 
-    17, 18, 19, 20, 25, 
-    50, 51, 54, 57, 60
-  ];
+
 
   return (
     <div className="mt-6">
@@ -54,22 +59,13 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
             Submit
           </button>
         </div>
+        {error && (
+          <div className="text-red-600 mt-2" role="alert">
+            {error}
+          </div>
+        )}
       </form>
 
-      <div className="mt-4">
-        <h3 className="font-medium mb-2">Quick Score</h3>
-        <div className="grid grid-cols-6 gap-2 md:grid-cols-9">
-          {quickScores.map((value) => (
-            <button
-              key={value}
-              onClick={() => handleQuickScore(value)}
-              className="bg-gray-200 hover:bg-gray-300 py-2 rounded text-center"
-            >
-              {value}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
