@@ -4,16 +4,14 @@ interface ScoreInputProps {
   onScoreSubmit: (score: number) => void;
 }
 
-// List of impossible 3-dart scores
 const IMPOSSIBLE_SCORES = [179, 178, 176, 175, 173, 172, 169, 166, 163];
-const MAX_POSSIBLE_SCORE = 180; // Maximum possible score (three triple 20s)
+const MAX_POSSIBLE_SCORE = 180;
 
 const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
   const [score, setScore] = useState<string>('');
   const [error, setError] = useState<string>('');
 
   const isValidScore = (score: number): boolean => {
-    // Check if score is not in the impossible scores list and not greater than 180
     return !IMPOSSIBLE_SCORES.includes(score) && score <= MAX_POSSIBLE_SCORE;
   };
 
