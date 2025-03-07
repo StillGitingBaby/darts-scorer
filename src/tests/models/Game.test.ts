@@ -20,7 +20,7 @@ describe('Game', () => {
   it('should initialize players with the correct starting score', () => {
     const game = new Game(GameType.X01, 501);
     game.addPlayer('John');
-    
+
     expect(game.players[0].score).toBe(501);
   });
 
@@ -28,14 +28,14 @@ describe('Game', () => {
     const game = new Game(GameType.X01, 501);
     game.addPlayer('John');
     game.addPlayer('Jane');
-    
+
     expect(game.currentPlayerIndex).toBe(0);
     expect(game.currentPlayer.name).toBe('John');
-    
+
     game.nextTurn();
     expect(game.currentPlayerIndex).toBe(1);
     expect(game.currentPlayer.name).toBe('Jane');
-    
+
     game.nextTurn();
     expect(game.currentPlayerIndex).toBe(0);
     expect(game.currentPlayer.name).toBe('John');
@@ -45,11 +45,11 @@ describe('Game', () => {
     const game = new Game(GameType.X01, 501);
     game.addPlayer('John');
     game.addPlayer('Jane');
-    
+
     game.recordScore(60); // John scores 60
     expect(game.players[0].score).toBe(441); // 501 - 60
     expect(game.currentPlayerIndex).toBe(1); // Now Jane's turn
-    
+
     game.recordScore(45); // Jane scores 45
     expect(game.players[1].score).toBe(456); // 501 - 45
     expect(game.currentPlayerIndex).toBe(0); // Back to John
@@ -59,15 +59,15 @@ describe('Game', () => {
     const game = new Game(GameType.X01, 101);
     game.addPlayer('John');
     game.addPlayer('Jane');
-    
+
     expect(game.isGameOver).toBe(false);
     expect(game.winner).toBeNull();
-    
+
     game.recordScore(50); // John scores 50
     game.recordScore(20); // Jane scores 20
-    
+
     game.recordScore(51); // John scores 51, reaching exactly 0
-    
+
     expect(game.isGameOver).toBe(true);
     expect(game.winner).not.toBeNull();
     expect(game.winner?.name).toBe('John');
@@ -76,10 +76,10 @@ describe('Game', () => {
   it('should not allow a player to go below 0 in X01 games', () => {
     const game = new Game(GameType.X01, 50);
     game.addPlayer('John');
-    
+
     // Try to score more than the remaining points
     game.recordScore(60);
-    
+
     // Score should remain unchanged and player's turn should not change
     expect(game.players[0].score).toBe(50);
     expect(game.currentPlayerIndex).toBe(0);
@@ -89,16 +89,16 @@ describe('Game', () => {
     const game = new Game(GameType.X01, 501);
     game.addPlayer('John');
     game.addPlayer('Jane');
-    
+
     game.recordScore(60); // John scores 60
     game.recordScore(45); // Jane scores 45
-    
+
     game.reset();
-    
+
     expect(game.players[0].score).toBe(501);
     expect(game.players[1].score).toBe(501);
     expect(game.currentPlayerIndex).toBe(0);
     expect(game.isGameOver).toBe(false);
     expect(game.winner).toBeNull();
   });
-}); 
+});
