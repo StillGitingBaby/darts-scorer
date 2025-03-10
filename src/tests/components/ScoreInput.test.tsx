@@ -42,7 +42,7 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
+    const input = screen.getByLabelText('Enter Score:');
     fireEvent.change(input, { target: { value: '60' } });
 
     const submitButton = screen.getByRole('button', { name: 'Submit' });
