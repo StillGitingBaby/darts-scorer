@@ -15,16 +15,16 @@ const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerIndex }) 
   return (
     <div className="mt-4">
       <h2 className="text-xl font-semibold mb-2">Players</h2>
-      <ul className="divide-y divide-gray-200 border rounded-lg overflow-hidden">
+      <div className="grid grid-cols-2 gap-4">
         {players.map((player, index) => (
-          <li
+          <div
             key={index}
             data-testid="player-item"
-            className={`p-4 flex justify-between items-center ${
+            className={`p-4 border rounded-lg ${
               index === currentPlayerIndex ? 'bg-blue-100' : ''
             }`}
           >
-            <div className="flex items-center">
+            <div className="flex items-center mb-2">
               {index === currentPlayerIndex && (
                 <span className="mr-2 text-blue-600">
                   <svg
@@ -41,26 +41,26 @@ const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerIndex }) 
                   </svg>
                 </span>
               )}
-              <span className="font-medium">{player.name}</span>
+              <span className="font-medium text-lg">{player.name}</span>
             </div>
-            <div className="flex flex-col items-end">
-              <span className="text-xl font-bold">{player.score}</span>
+            <div className="text-center">
+              <span className="text-3xl font-bold">{player.score}</span>
               {player.visitScores.length > 0 && (
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">Last visit: </span>
-                  <span>{player.visitScores[player.visitScores.length - 1]}</span>
+                <div className="mt-2">
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium">Last visit: </span>
+                    <span>{player.visitScores[player.visitScores.length - 1]}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    <span>Visit history: </span>
+                    <span>{player.visitScores.join(', ')}</span>
+                  </div>
                 </div>
               )}
-              {player.visitScores.length > 0 && (
-                <div className="text-xs text-gray-500 mt-1">
-                  <span>Visit history: </span>
-                  <span>{player.visitScores.join(', ')}</span>
-                </div>
-              )}
             </div>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
