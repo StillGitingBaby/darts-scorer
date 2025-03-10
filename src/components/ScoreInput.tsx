@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import confetti from 'canvas-confetti';
 
 interface ScoreInputProps {
   onScoreSubmit: (score: number) => void;
@@ -32,6 +33,9 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
     if (!isNaN(numericScore) && numericScore >= 0) {
       if (isValidScore(numericScore)) {
         onScoreSubmit(numericScore);
+        if (numericScore === 180) {
+          launchConfetti();
+      }
         setScore('');
         setError('');
       } else {
@@ -39,6 +43,17 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
       }
     }
   };
+
+  const launchConfetti = () => {
+    confetti({
+      particleCount: 200,
+      spread: 100,
+      startVelocity: 50,
+      scalar: 1.2,  // Size of confetti pieces
+      colors: ['#ff0000', '#ffbf00', '#00ff00'], // Red, Yellow, Green
+      origin: { y: 0.6 }
+  });  
+};
 
   return (
     <div className="mt-6">
