@@ -15,12 +15,12 @@ const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerIndex }) 
   return (
     <div className="mt-4">
       <h2 className="text-xl font-semibold mb-2">Players</h2>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex gap-4">
         {players.map((player, index) => (
           <div
             key={index}
             data-testid="player-item"
-            className={`p-4 border rounded-lg ${
+            className={`flex-1 p-4 border rounded-lg ${
               index === currentPlayerIndex ? 'bg-blue-100' : ''
             }`}
           >
