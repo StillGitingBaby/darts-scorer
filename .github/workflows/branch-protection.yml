@@ -9,14 +9,30 @@ jobs:
   check-direct-push:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Check if push is from PR
         run: |
-          # If the push is from a PR merge, the GitHub event will have a pull_request object
-          if [ "${{ github.event_name }}" == "push" ] && [ -z "${{ github.event.pull_request }}" ]; then
-            # Check if the actor is a GitHub Action (for automated workflows)
-            if [[ "${{ github.actor }}" != "github-actions[bot]" && "${{ github.actor }}" != "dependabot[bot]" ]]; then
-              echo "ERROR: Direct pushes to the main branch are not allowed."
-              echo "Please create a feature branch and submit a pull request instead."
-              exit 1
-            fi
-          fi 
+          # Get the commit message
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          
+          # Check if this is a PR merge commit
+          # GitHub PR merge commits typically contain "Merge pull request #X from"
+          if echo "$COMMIT_MSG" | grep -q "^Merge pull request #"; then
+            echo "Push allowed: PR merge detected"
+            exit 0
+          fi
+          
+          # Allow pushes from automated workflows
+          if [[ "${{ github.actor }}" == "github-actions[bot]" || "${{ github.actor }}" == "dependabot[bot]" ]]; then
+            echo "Push allowed: Automated workflow"
+            exit 0
+          fi
+          
+          # Block all other pushes to main
+          echo "ERROR: Direct pushes to the main branch are not allowed."
+          echo "Please create a feature branch and submit a pull request instead."
+          exit 1 
