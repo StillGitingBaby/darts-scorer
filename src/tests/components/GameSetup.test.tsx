@@ -78,4 +78,31 @@ describe('GameSetup', () => {
 
     expect(onGameStart).not.toHaveBeenCalled();
   });
+
+  it('should not allow duplicate player names', () => {
+    const onGameStart = jest.fn();
+    render(<GameSetup onGameStart={onGameStart} />);
+
+    const playerNameInput = screen.getByLabelText('Player Name:');
+    const addPlayerButton = screen.getByRole('button', { name: 'Add Player' });
+
+    // Add a player named "John"
+    fireEvent.change(playerNameInput, { target: { value: 'John' } });
+    fireEvent.click(addPlayerButton);
+
+    // Try adding "John" again
+    fireEvent.change(playerNameInput, { target: { value: 'John' } });
+    fireEvent.click(addPlayerButton);
+
+    // Ensure "John" appears only once in the players list
+    const playersList = screen.getAllByText('John');
+    expect(playersList.length).toBe(1);
+
+    // (Optional) Check for an error message if your UI displays one
+    expect(screen.queryByText('Duplicate player names are not allowed')).toBeInTheDocument();
+
+    // Ensure input is cleared after valid entry
+    expect(playerNameInput).toHaveValue('');
+  });
+
 });
