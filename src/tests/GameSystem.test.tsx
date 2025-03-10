@@ -89,7 +89,9 @@ describe('Darts Scorer System Test', () => {
       expect(player2Element).toHaveClass('bg-blue-100');
 
       // Player 1 should no longer be highlighted
-      const player1ElementAfter = screen.getByText('Player 1').closest('[data-testid="player-item"]');
+      const player1ElementAfter = screen
+        .getByText('Player 1')
+        .closest('[data-testid="player-item"]');
       expect(player1ElementAfter).not.toHaveClass('bg-blue-100');
     });
 
@@ -120,7 +122,9 @@ describe('Darts Scorer System Test', () => {
       expect(player1Element).toHaveClass('bg-blue-100');
 
       // Player 2 should no longer be highlighted
-      const player2ElementAfter = screen.getByText('Player 2').closest('[data-testid="player-item"]');
+      const player2ElementAfter = screen
+        .getByText('Player 2')
+        .closest('[data-testid="player-item"]');
       expect(player2ElementAfter).not.toHaveClass('bg-blue-100');
     });
   });
