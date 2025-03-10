@@ -13,8 +13,7 @@
     "test:coverage": "jest --coverage --config jest.config.cjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --config eslint.config.cjs",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix --config eslint.config.cjs",
-    "analyze:bundle": "vite build",
-    "setup:hooks": "chmod +x ./scripts/setup-git-hooks.sh && ./scripts/setup-git-hooks.sh"
+    "analyze:bundle": "vite build"
   },
   "keywords": [],
   "author": "",

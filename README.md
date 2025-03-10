@@ -76,32 +76,3 @@ npm test
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details. 
-
-## Contributing
-
-### Branch Protection
-
-This project has branch protection rules to maintain code quality:
-
-1. Direct commits and pushes to the `main` branch are not allowed
-2. All changes must be made through pull requests
-3. Pull requests require at least one review before merging
-4. All status checks must pass before merging
-
-### Setting Up Git Hooks
-
-To prevent accidental commits/pushes to protected branches, run:
-
-```bash
-./scripts/setup-git-hooks.sh
-```
-
-This will install pre-commit and pre-push hooks that block direct commits to the main branch.
-
-### Contribution Workflow
-
-1. Create a feature branch from `main`
-2. Make your changes
-3. Submit a pull request to `main`
-4. Address any review comments
-5. Once approved and all checks pass, your PR can be merged 
