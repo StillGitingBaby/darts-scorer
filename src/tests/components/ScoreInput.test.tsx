@@ -16,7 +16,7 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:');
+    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
     fireEvent.change(input, { target: { value: '60' } });
 
     const submitButton = screen.getByRole('button', { name: 'Submit' });
@@ -29,7 +29,7 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:');
+    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'invalid' } });
 
     const submitButton = screen.getByRole('button', { name: 'Submit' });
@@ -42,7 +42,7 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:');
+    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
     fireEvent.change(input, { target: { value: '60' } });
 
     const submitButton = screen.getByRole('button', { name: 'Submit' });
@@ -56,7 +56,7 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:');
+    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
     fireEvent.change(input, { target: { value: '179' } });
 
     const submitButton = screen.getByRole('button', { name: 'Submit' });
@@ -72,7 +72,7 @@ describe('ScoreInput', () => {
 
     // Test multiple impossible scores
     const impossibleScores = [179, 178, 176, 175, 173, 172, 169, 166, 163];
-    const input = screen.getByLabelText('Enter Score:');
+    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
     const submitButton = screen.getByRole('button', { name: 'Submit' });
 
     for (const impossibleScore of impossibleScores) {
@@ -91,7 +91,7 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:');
+    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
     fireEvent.change(input, { target: { value: '181' } });
 
     const form = input.closest('form');
@@ -110,7 +110,7 @@ describe('ScoreInput', () => {
 
     // Test a few scores above the maximum
     const tooHighScores = [181, 200, 300];
-    const input = screen.getByLabelText('Enter Score:');
+    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
     const form = input.closest('form');
 
     for (const highScore of tooHighScores) {
@@ -129,7 +129,7 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:');
+    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
     fireEvent.change(input, { target: { value: '180' } });
 
     const submitButton = screen.getByRole('button', { name: 'Submit' });
