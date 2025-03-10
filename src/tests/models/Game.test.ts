@@ -55,6 +55,32 @@ describe('Game', () => {
     expect(game.currentPlayerIndex).toBe(0); // Back to John
   });
 
+  it('should record visit scores when recording scores', () => {
+    const game = new Game(GameType.X01, 501);
+    game.addPlayer('John');
+    game.addPlayer('Jane');
+
+    game.recordScore(60); // John scores 60
+    expect(game.players[0].visitScores).toEqual([60]);
+    
+    game.recordScore(45); // Jane scores 45
+    expect(game.players[1].visitScores).toEqual([45]);
+    
+    game.recordScore(100); // John scores 100
+    expect(game.players[0].visitScores).toEqual([60, 100]);
+  });
+
+  it('should not record visit scores when a player busts', () => {
+    const game = new Game(GameType.X01, 50);
+    game.addPlayer('John');
+
+    // Try to score more than the remaining points
+    game.recordScore(60);
+
+    // Visit score should not be recorded
+    expect(game.players[0].visitScores).toEqual([]);
+  });
+
   it('should determine when a player has won', () => {
     const game = new Game(GameType.X01, 101);
     game.addPlayer('John');
@@ -100,5 +126,19 @@ describe('Game', () => {
     expect(game.currentPlayerIndex).toBe(0);
     expect(game.isGameOver).toBe(false);
     expect(game.winner).toBeNull();
+  });
+
+  it('should clear visit scores when resetting the game', () => {
+    const game = new Game(GameType.X01, 501);
+    game.addPlayer('John');
+    game.addPlayer('Jane');
+
+    game.recordScore(60); // John scores 60
+    game.recordScore(45); // Jane scores 45
+
+    game.reset();
+
+    expect(game.players[0].visitScores).toEqual([]);
+    expect(game.players[1].visitScores).toEqual([]);
   });
 });

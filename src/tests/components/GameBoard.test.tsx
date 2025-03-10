@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import React from 'react';
 
 import GameBoard from '../../components/GameBoard';
@@ -61,6 +61,67 @@ describe('GameBoard', () => {
     expect(scoreElement).toBeInTheDocument();
   });
 
+  // Test visit scores are displayed after submission
+  it('should display visit scores after score submission', () => {
+    render(<GameBoard />);
+
+    // Setup and start game
+    const gameTypeSelect = screen.getByLabelText('Game Type:');
+    fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
+
+    const playerInput = screen.getByLabelText('Player Name:');
+    fireEvent.change(playerInput, { target: { value: 'Player 1' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
+
+    // Submit a score
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '60' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    // Check if visit score is displayed
+    const playerItem = screen.getByTestId('player-item');
+    const lastVisitText = within(playerItem).getByText('Last visit:');
+    expect(lastVisitText).toBeInTheDocument();
+    expect(lastVisitText.nextSibling).toHaveTextContent('60');
+    expect(within(playerItem).getByText('Visit history:')).toBeInTheDocument();
+  });
+
+  // Test multiple visit scores
+  it('should track multiple visit scores', () => {
+    render(<GameBoard />);
+
+    // Setup and start game with two players
+    const gameTypeSelect = screen.getByLabelText('Game Type:');
+    fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
+
+    const playerInput = screen.getByLabelText('Player Name:');
+    fireEvent.change(playerInput, { target: { value: 'Player 1' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+
+    fireEvent.change(playerInput, { target: { value: 'Player 2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
+
+    // Submit scores for both players
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '60' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '45' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    // Submit another score for first player
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '100' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    // Check if visit history shows multiple scores for first player
+    const playerItems = screen.getAllByTestId('player-item');
+    const player1Item = playerItems[0]; // First player
+    const visitHistoryText = within(player1Item).getByText('Visit history:');
+    expect(visitHistoryText.nextSibling).toHaveTextContent('60, 100');
+  });
+
   // Test game reset - this covers the uncovered lines 52, 57-68
   it('should reset the game when Reset Game button is clicked', () => {
     render(<GameBoard />);
@@ -84,6 +145,10 @@ describe('GameBoard', () => {
 
     // Verify the game has been reset
     expect(screen.getByText('Current Turn')).toBeInTheDocument();
+    
+    // Verify visit scores are cleared
+    expect(screen.queryByText('Last visit:')).not.toBeInTheDocument();
+    expect(screen.queryByText('Visit history:')).not.toBeInTheDocument();
   });
 
   // Test new game - this covers the uncovered lines 72-73
