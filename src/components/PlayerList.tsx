@@ -43,7 +43,21 @@ const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerIndex }) 
               )}
               <span className="font-medium">{player.name}</span>
             </div>
-            <span className="text-xl font-bold">{player.score}</span>
+            <div className="flex flex-col items-end">
+              <span className="text-xl font-bold">{player.score}</span>
+              {player.visitScores.length > 0 && (
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">Last visit: </span>
+                  <span>{player.visitScores[player.visitScores.length - 1]}</span>
+                </div>
+              )}
+              {player.visitScores.length > 0 && (
+                <div className="text-xs text-gray-500 mt-1">
+                  <span>Visit history: </span>
+                  <span>{player.visitScores.join(', ')}</span>
+                </div>
+              )}
+            </div>
           </li>
         ))}
       </ul>

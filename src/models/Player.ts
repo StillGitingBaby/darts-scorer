@@ -1,6 +1,7 @@
 export class Player {
   name: string;
   score: number;
+  visitScores: number[] = [];
 
   constructor(name: string, initialScore: number = 0) {
     this.name = name;
@@ -17,5 +18,10 @@ export class Player {
 
   resetScore(): void {
     this.score = 0;
+    this.visitScores = [];
+  }
+
+  addVisitScore(points: number): void {
+    this.visitScores.push(points);
   }
 }
