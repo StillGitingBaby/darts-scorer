@@ -31,11 +31,13 @@ const GameBoard: React.FC = () => {
     // Create a deep copy of the current game
     const updatedGame = new Game(game.type, game.startingScore);
 
-    // Copy all players with their current scores
+    // Copy all players with their current scores and visit scores
     game.players.forEach(player => {
       updatedGame.addPlayer(player.name);
       // Set the score to match the original player's score
       updatedGame.players[updatedGame.players.length - 1].score = player.score;
+      // Copy the visit scores
+      updatedGame.players[updatedGame.players.length - 1].visitScores = [...player.visitScores];
     });
 
     // Set the current player index to match the original game

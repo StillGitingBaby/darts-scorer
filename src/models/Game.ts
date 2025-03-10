@@ -43,6 +43,9 @@ export class Game {
         return;
       }
 
+      // Record the visit score
+      player.addVisitScore(score);
+
       // Subtract the score
       player.subtractScore(score);
 
@@ -62,6 +65,7 @@ export class Game {
     // Reset all players' scores
     this.players.forEach(player => {
       player.score = this.startingScore;
+      player.visitScores = [];
     });
 
     // Reset game state
