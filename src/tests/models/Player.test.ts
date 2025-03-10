@@ -52,7 +52,7 @@ describe('Player', () => {
     const player = new Player('John');
     player.addVisitScore(60);
     expect(player.visitScores).toEqual([60]);
-    
+
     player.addVisitScore(45);
     expect(player.visitScores).toEqual([60, 45]);
   });
@@ -61,9 +61,9 @@ describe('Player', () => {
     const player = new Player('John', 501);
     player.addVisitScore(60);
     player.addVisitScore(45);
-    
+
     player.resetScore();
-    
+
     expect(player.score).toBe(0);
     expect(player.visitScores).toEqual([]);
   });

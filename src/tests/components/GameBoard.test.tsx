@@ -145,7 +145,7 @@ describe('GameBoard', () => {
 
     // Verify the game has been reset
     expect(screen.getByText('Current Turn')).toBeInTheDocument();
-    
+
     // Verify visit scores are cleared
     expect(screen.queryByText('Last visit:')).not.toBeInTheDocument();
     expect(screen.queryByText('Visit history:')).not.toBeInTheDocument();

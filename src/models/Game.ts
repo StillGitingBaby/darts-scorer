@@ -45,7 +45,7 @@ export class Game {
 
       // Record the visit score
       player.addVisitScore(score);
-      
+
       // Subtract the score
       player.subtractScore(score);
 

@@ -62,10 +62,10 @@ describe('Game', () => {
 
     game.recordScore(60); // John scores 60
     expect(game.players[0].visitScores).toEqual([60]);
-    
+
     game.recordScore(45); // Jane scores 45
     expect(game.players[1].visitScores).toEqual([45]);
-    
+
     game.recordScore(100); // John scores 100
     expect(game.players[0].visitScores).toEqual([60, 100]);
   });
