@@ -9,20 +9,16 @@ HTML5, CSS3, and JavaScript
 Framework: React.js (good balance of simplicity and scalability)
 UI Library: Consider Tailwind CSS for rapid styling
 
-
 Backend (when needed):
 
 Firebase (provides authentication, database, hosting in one package)
 Alternative: Node.js with Express if you prefer more control
-
 
 PWA Requirements:
 
 Service workers for offline functionality
 Web manifest for installation capability
 Responsive design for all device sizes
-
-
 
 Development Phases
 Phase 1: MVP (Minimum Viable Product)
@@ -57,12 +53,10 @@ Create a React project (using Create React App or Vite)
 Configure as PWA from the beginning
 Set up version control (Git)
 
-
 Create your UI:
 
 Create basic UI for score entry
 Focus on mobile-first design
-
 
 Implement core functionality:
 
@@ -70,7 +64,6 @@ Game logic for basic 01 games
 Score calculation and validation
 Turn management
 Game completion logic
-
 
 Add PWA features:
 

@@ -86,12 +86,14 @@ describe('GameSetup', () => {
     const playerNameInput = screen.getByLabelText('Player Name:');
     const addPlayerButton = screen.getByRole('button', { name: 'Add Player' });
 
+    const playerName = 'John';
+
     // Add a player named "John"
-    fireEvent.change(playerNameInput, { target: { value: 'John' } });
+    fireEvent.change(playerNameInput, { target: { value: playerName } });
     fireEvent.click(addPlayerButton);
 
     // Try adding "John" again
-    fireEvent.change(playerNameInput, { target: { value: 'John' } });
+    fireEvent.change(playerNameInput, { target: { value: playerName } });
     fireEvent.click(addPlayerButton);
 
     // Ensure "John" appears only once in the players list
@@ -104,5 +106,4 @@ describe('GameSetup', () => {
     // Ensure input is cleared after valid entry
     expect(playerNameInput).toHaveValue('');
   });
-
 });
