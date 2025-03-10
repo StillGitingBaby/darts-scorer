@@ -4,6 +4,9 @@ const typescriptPlugin = require('@typescript-eslint/eslint-plugin');
 const typescriptParser = require('@typescript-eslint/parser');
 const importPlugin = require('eslint-plugin-import');
 const prettierPlugin = require('eslint-plugin-prettier');
+const jsxA11yPlugin = require('eslint-plugin-jsx-a11y');
+const sonarjsPlugin = require('eslint-plugin-sonarjs');
+const reactPerfPlugin = require('eslint-plugin-react-perf');
 
 module.exports = [
   {
@@ -20,6 +23,7 @@ module.exports = [
       'vitest.config.ts'
     ]
   },
+  // Base configuration for all JavaScript and TypeScript files
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
@@ -42,7 +46,10 @@ module.exports = [
       'react-hooks': reactHooksPlugin,
       '@typescript-eslint': typescriptPlugin,
       import: importPlugin,
-      prettier: prettierPlugin
+      prettier: prettierPlugin,
+      'jsx-a11y': jsxA11yPlugin,
+      sonarjs: sonarjsPlugin,
+      'react-perf': reactPerfPlugin
     },
     settings: {
       react: {
@@ -66,7 +73,15 @@ module.exports = [
           'newlines-between': 'always',
           alphabetize: { order: 'asc', caseInsensitive: true }
         }
-      ]
+      ],
+      'sonarjs/cognitive-complexity': 'warn',
+      'sonarjs/no-identical-functions': 'warn',
+      'sonarjs/no-duplicate-string': 'warn',
+      'jsx-a11y/alt-text': 'warn',
+      'jsx-a11y/anchor-is-valid': 'warn',
+      'react-perf/jsx-no-new-object-as-prop': 'warn',
+      'react-perf/jsx-no-new-array-as-prop': 'warn',
+      'react-perf/jsx-no-new-function-as-prop': 'warn'
     }
   }
 ]; 
