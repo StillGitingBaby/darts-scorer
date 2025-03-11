@@ -14,7 +14,7 @@ describe('checkoutRoutes utility', () => {
       expect(isCheckoutPossible(40)).toBe(true); // Common checkout
       expect(isCheckoutPossible(32)).toBe(true); // Common checkout
       expect(isCheckoutPossible(2)).toBe(true); // Minimum checkout
-      
+
       // Test some odd numbers that can be checked out
       expect(isCheckoutPossible(39)).toBe(true);
       expect(isCheckoutPossible(25)).toBe(true);
@@ -54,10 +54,10 @@ describe('checkoutRoutes utility', () => {
       // We need to find a score that's not already in CHECKOUT_ROUTES
       // Let's use 42 as an example, but first check if it's in CHECKOUT_ROUTES
       const mockScore = 42;
-      
+
       // Get the actual routes for this score
       const actualRoutes = CHECKOUT_ROUTES[mockScore];
-      
+
       // Verify it returns the expected routes
       expect(getCheckoutRoutes(mockScore)).toEqual(actualRoutes);
     });
@@ -78,11 +78,11 @@ describe('checkoutRoutes utility', () => {
     it('should include all known impossible checkout scores', () => {
       // These are the standard impossible checkout scores in darts
       const knownImpossibles = [169, 168, 166, 165, 163, 162, 159];
-      
+
       // Verify all known impossibles are included
       knownImpossibles.forEach(score => {
         expect(IMPOSSIBLE_CHECKOUT_SCORES).toContain(score);
       });
     });
   });
-}); 
+});

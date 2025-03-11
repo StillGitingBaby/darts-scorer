@@ -3,7 +3,6 @@ import React from 'react';
 
 import GameBoard from '../../components/GameBoard';
 import { GameType } from '../../models/Game';
-import { MAX_CHECKOUT_SCORE } from '../../utils/checkoutRoutes';
 
 // Since we're having issues with mocking the CheckoutDisplay component,
 // let's test the GameBoard's shouldShowCheckoutRoutes function directly
@@ -73,4 +72,4 @@ describe('GameBoard Checkout Integration', () => {
     // Checkout display should not be shown for Cricket games
     expect(screen.queryByText(/Checkout Possible/)).not.toBeInTheDocument();
   });
-}); 
+});
