@@ -13,6 +13,17 @@ const SCORE_45 = '45';
 const SCORE_100 = '100';
 const ADD_PLAYER = 'Add Player';
 const START_GAME = 'Start Game';
+const GAME_SETUP = 'Game Setup';
+const GAME_TYPE = 'Game Type:';
+const PLAYER_NAME = 'Player Name:';
+const CURRENT_TURN = 'Current Turn';
+const SUBMIT = 'Submit';
+const ENTER_SCORE = 'Enter Score:';
+const RESET_GAME = 'Reset Game';
+const NEW_GAME = 'New Game';
+const LAST_VISIT = 'Last visit:';
+const VISIT_HISTORY = 'Visit history:';
+const PLAYER_ITEM_TEST_ID = 'player-item';
 
 describe('GameBoard', () => {
   // Test initial render
@@ -20,8 +31,8 @@ describe('GameBoard', () => {
     render(<GameBoard />);
 
     // Check if GameSetup is rendered
-    expect(screen.getByText('Game Setup')).toBeInTheDocument();
-    expect(screen.getByLabelText('Game Type:')).toBeInTheDocument();
+    expect(screen.getByText(GAME_SETUP)).toBeInTheDocument();
+    expect(screen.getByLabelText(GAME_TYPE)).toBeInTheDocument();
   });
 
   // Test game start
@@ -29,11 +40,11 @@ describe('GameBoard', () => {
     render(<GameBoard />);
 
     // Fill in game setup form
-    const gameTypeSelect = screen.getByLabelText('Game Type:');
+    const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
     // Add a player
-    const playerInput = screen.getByLabelText('Player Name:');
+    const playerInput = screen.getByLabelText(PLAYER_NAME);
     fireEvent.change(playerInput, { target: { value: TEST_PLAYER } });
     fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
@@ -43,7 +54,7 @@ describe('GameBoard', () => {
     // Check if game board is rendered
     expect(screen.getByText(/X01/)).toBeInTheDocument();
     expect(screen.getByText(TEST_PLAYER)).toBeInTheDocument();
-    expect(screen.getByText('Current Turn')).toBeInTheDocument();
+    expect(screen.getByText(CURRENT_TURN)).toBeInTheDocument();
     expect(screen.getByText(`${TEST_PLAYER}'s turn to throw`)).toBeInTheDocument();
   });
 
@@ -52,22 +63,22 @@ describe('GameBoard', () => {
     render(<GameBoard />);
 
     // Setup and start game
-    const gameTypeSelect = screen.getByLabelText('Game Type:');
+    const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
-    const playerInput = screen.getByLabelText('Player Name:');
+    const playerInput = screen.getByLabelText(PLAYER_NAME);
     fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
     fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
     fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Submit a score
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_60 } });
-    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_60 } });
+    fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
 
     // Check if score is updated (501 - 60 = 441)
     // Use a regex to find a number that could be the score
-    const scoreElement = screen.getByTestId('player-item');
+    const scoreElement = screen.getByTestId(PLAYER_ITEM_TEST_ID);
     expect(scoreElement).toBeInTheDocument();
   });
 
@@ -76,25 +87,25 @@ describe('GameBoard', () => {
     render(<GameBoard />);
 
     // Setup and start game
-    const gameTypeSelect = screen.getByLabelText('Game Type:');
+    const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
-    const playerInput = screen.getByLabelText('Player Name:');
+    const playerInput = screen.getByLabelText(PLAYER_NAME);
     fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
     fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
     fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Submit a score
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_60 } });
-    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_60 } });
+    fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
 
     // Check if visit score is displayed
-    const playerItem = screen.getByTestId('player-item');
-    const lastVisitText = within(playerItem).getByText('Last visit:');
+    const playerItem = screen.getByTestId(PLAYER_ITEM_TEST_ID);
+    const lastVisitText = within(playerItem).getByText(LAST_VISIT);
     expect(lastVisitText).toBeInTheDocument();
     expect(lastVisitText.nextSibling).toHaveTextContent(SCORE_60);
-    expect(within(playerItem).getByText('Visit history:')).toBeInTheDocument();
+    expect(within(playerItem).getByText(VISIT_HISTORY)).toBeInTheDocument();
   });
 
   // Test multiple visit scores
@@ -102,10 +113,10 @@ describe('GameBoard', () => {
     render(<GameBoard />);
 
     // Setup and start game with two players
-    const gameTypeSelect = screen.getByLabelText('Game Type:');
+    const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
-    const playerInput = screen.getByLabelText('Player Name:');
+    const playerInput = screen.getByLabelText(PLAYER_NAME);
     fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
     fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
@@ -115,20 +126,20 @@ describe('GameBoard', () => {
     fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Submit scores for both players
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_60 } });
-    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_60 } });
+    fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
 
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_45 } });
-    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_45 } });
+    fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
 
     // Submit another score for first player
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_100 } });
-    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_100 } });
+    fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
 
     // Check if visit history shows multiple scores for first player
-    const playerItems = screen.getAllByTestId('player-item');
+    const playerItems = screen.getAllByTestId(PLAYER_ITEM_TEST_ID);
     const player1Item = playerItems[0]; // First player
-    const visitHistoryText = within(player1Item).getByText('Visit history:');
+    const visitHistoryText = within(player1Item).getByText(VISIT_HISTORY);
     expect(visitHistoryText.nextSibling).toHaveTextContent(`${SCORE_60}, ${SCORE_100}`);
   });
 
@@ -137,28 +148,28 @@ describe('GameBoard', () => {
     render(<GameBoard />);
 
     // Setup and start game
-    const gameTypeSelect = screen.getByLabelText('Game Type:');
+    const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
-    const playerInput = screen.getByLabelText('Player Name:');
+    const playerInput = screen.getByLabelText(PLAYER_NAME);
     fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
     fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
     fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Submit a score to change the game state
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_60 } });
-    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_60 } });
+    fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
 
     // Reset the game
-    fireEvent.click(screen.getByRole('button', { name: 'Reset Game' }));
+    fireEvent.click(screen.getByRole('button', { name: RESET_GAME }));
 
     // Verify the game has been reset
-    expect(screen.getByText('Current Turn')).toBeInTheDocument();
+    expect(screen.getByText(CURRENT_TURN)).toBeInTheDocument();
 
     // Verify visit scores are cleared
-    expect(screen.queryByText('Last visit:')).not.toBeInTheDocument();
-    expect(screen.queryByText('Visit history:')).not.toBeInTheDocument();
+    expect(screen.queryByText(LAST_VISIT)).not.toBeInTheDocument();
+    expect(screen.queryByText(VISIT_HISTORY)).not.toBeInTheDocument();
   });
 
   // Test new game - this covers the uncovered lines 72-73
@@ -166,10 +177,10 @@ describe('GameBoard', () => {
     render(<GameBoard />);
 
     // Setup and start game
-    const gameTypeSelect = screen.getByLabelText('Game Type:');
+    const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
-    const playerInput = screen.getByLabelText('Player Name:');
+    const playerInput = screen.getByLabelText(PLAYER_NAME);
     fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
     fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
@@ -179,9 +190,9 @@ describe('GameBoard', () => {
     expect(screen.getByText(/X01/)).toBeInTheDocument();
 
     // Click New Game
-    fireEvent.click(screen.getByRole('button', { name: 'New Game' }));
+    fireEvent.click(screen.getByRole('button', { name: NEW_GAME }));
 
     // Verify we're back to game setup
-    expect(screen.getByText('Game Setup')).toBeInTheDocument();
+    expect(screen.getByText(GAME_SETUP)).toBeInTheDocument();
   });
 });
