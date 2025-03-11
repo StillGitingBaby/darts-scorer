@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import CheckoutDisplay from './CheckoutDisplay';
 import GameSetup from './GameSetup';
@@ -11,53 +11,55 @@ const GameBoard: React.FC = () => {
   const [game, setGame] = useState<Game | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
 
-  const handleGameStart = (gameConfig: {
-    gameType: GameType;
-    startingScore: number;
-    playerNames: string[];
-  }) => {
-    const newGame = new Game(gameConfig.gameType, gameConfig.startingScore);
+  const handleGameStart = useCallback(
+    (gameConfig: { gameType: GameType; startingScore: number; playerNames: string[] }) => {
+      const newGame = new Game(gameConfig.gameType, gameConfig.startingScore);
 
-    // Add all players
-    gameConfig.playerNames.forEach(name => {
-      newGame.addPlayer(name);
-    });
+      // Add all players
+      gameConfig.playerNames.forEach(name => {
+        newGame.addPlayer(name);
+      });
 
-    setGame(newGame);
-    setGameOver(false);
-  };
+      setGame(newGame);
+      setGameOver(false);
+    },
+    []
+  );
 
-  const handleScoreSubmit = (score: number) => {
-    if (!game || gameOver) return;
+  const handleScoreSubmit = useCallback(
+    (score: number) => {
+      if (!game || gameOver) return;
 
-    // Create a deep copy of the current game
-    const updatedGame = new Game(game.type, game.startingScore);
+      // Create a deep copy of the current game
+      const updatedGame = new Game(game.type, game.startingScore);
 
-    // Copy all players with their current scores and visit scores
-    game.players.forEach(player => {
-      updatedGame.addPlayer(player.name);
-      // Set the score to match the original player's score
-      updatedGame.players[updatedGame.players.length - 1].score = player.score;
-      // Copy the visit scores
-      updatedGame.players[updatedGame.players.length - 1].visitScores = [...player.visitScores];
-    });
+      // Copy all players with their current scores and visit scores
+      game.players.forEach(player => {
+        updatedGame.addPlayer(player.name);
+        // Set the score to match the original player's score
+        updatedGame.players[updatedGame.players.length - 1].score = player.score;
+        // Copy the visit scores
+        updatedGame.players[updatedGame.players.length - 1].visitScores = [...player.visitScores];
+      });
 
-    // Set the current player index to match the original game
-    updatedGame.currentPlayerIndex = game.currentPlayerIndex;
+      // Set the current player index to match the original game
+      updatedGame.currentPlayerIndex = game.currentPlayerIndex;
 
-    // Record the score in the updated game
-    updatedGame.recordScore(score);
+      // Record the score in the updated game
+      updatedGame.recordScore(score);
 
-    // Update the game state
-    setGame(updatedGame);
+      // Update the game state
+      setGame(updatedGame);
 
-    // Check if the game is over
-    if (updatedGame.isGameOver) {
-      setGameOver(true);
-    }
-  };
+      // Check if the game is over
+      if (updatedGame.isGameOver) {
+        setGameOver(true);
+      }
+    },
+    [game, gameOver]
+  );
 
-  const handleResetGame = () => {
+  const handleResetGame = useCallback(() => {
     if (!game) return;
 
     // Create a new game with the same settings
@@ -70,12 +72,12 @@ const GameBoard: React.FC = () => {
 
     setGame(resetGame);
     setGameOver(false);
-  };
+  }, [game]);
 
-  const handleNewGame = () => {
+  const handleNewGame = useCallback(() => {
     setGame(null);
     setGameOver(false);
-  };
+  }, []);
 
   // Helper function to determine if we should show checkout routes
   const shouldShowCheckoutRoutes = (): boolean => {

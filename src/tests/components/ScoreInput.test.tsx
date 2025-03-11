@@ -3,23 +3,29 @@ import React from 'react';
 
 import ScoreInput from '../../components/ScoreInput';
 
+// Constants for duplicate strings
+const ENTER_SCORE = 'Enter Score:';
+const SUBMIT = 'Submit';
+const SCORE_60 = '60';
+const MAX_SCORE = '180';
+
 describe('ScoreInput', () => {
   it('should render the score input form', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    expect(screen.getByLabelText('Enter Score:')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
+    expect(screen.getByLabelText(ENTER_SCORE)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: SUBMIT })).toBeInTheDocument();
   });
 
   it('should call onScoreSubmit with the entered score when submitted', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
-    fireEvent.change(input, { target: { value: '60' } });
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: SCORE_60 } });
 
-    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    const submitButton = screen.getByRole('button', { name: SUBMIT });
     fireEvent.click(submitButton);
 
     expect(onScoreSubmit).toHaveBeenCalledWith(60);
@@ -29,10 +35,10 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'invalid' } });
 
-    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    const submitButton = screen.getByRole('button', { name: SUBMIT });
     fireEvent.click(submitButton);
 
     expect(onScoreSubmit).not.toHaveBeenCalled();
@@ -42,10 +48,10 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
-    fireEvent.change(input, { target: { value: '60' } });
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: SCORE_60 } });
 
-    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    const submitButton = screen.getByRole('button', { name: SUBMIT });
     fireEvent.click(submitButton);
 
     expect(input.value).toBe('');
@@ -56,10 +62,10 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
     fireEvent.change(input, { target: { value: '179' } });
 
-    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    const submitButton = screen.getByRole('button', { name: SUBMIT });
     fireEvent.click(submitButton);
 
     expect(onScoreSubmit).not.toHaveBeenCalled();
@@ -72,8 +78,8 @@ describe('ScoreInput', () => {
 
     // Test multiple impossible scores
     const impossibleScores = [179, 178, 176, 175, 173, 172, 169, 166, 163];
-    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
-    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
+    const submitButton = screen.getByRole('button', { name: SUBMIT });
 
     for (const impossibleScore of impossibleScores) {
       fireEvent.change(input, { target: { value: impossibleScore.toString() } });
@@ -91,7 +97,7 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
     fireEvent.change(input, { target: { value: '181' } });
 
     const form = input.closest('form');
@@ -110,7 +116,7 @@ describe('ScoreInput', () => {
 
     // Test a few scores above the maximum
     const tooHighScores = [181, 200, 300];
-    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
     const form = input.closest('form');
 
     for (const highScore of tooHighScores) {
@@ -129,10 +135,10 @@ describe('ScoreInput', () => {
     const onScoreSubmit = jest.fn();
     render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
 
-    const input = screen.getByLabelText('Enter Score:') as HTMLInputElement;
-    fireEvent.change(input, { target: { value: '180' } });
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: MAX_SCORE } });
 
-    const submitButton = screen.getByRole('button', { name: 'Submit' });
+    const submitButton = screen.getByRole('button', { name: SUBMIT });
     fireEvent.click(submitButton);
 
     expect(onScoreSubmit).toHaveBeenCalledWith(180);

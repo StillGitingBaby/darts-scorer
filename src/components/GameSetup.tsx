@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import { GameType } from '../models/Game';
 
@@ -16,7 +16,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
   const [inputPlayer, setInputPlayer] = useState<string>('');
   const [ExistingPlayers, setExistingPlayers] = useState<string[]>([]);
 
-  const handleAddPlayer = () => {
+  const handleAddPlayer = useCallback(() => {
     const trimmedName = inputPlayer.trim();
 
     if (!trimmedName) return; // Prevent adding empty names
@@ -29,13 +29,16 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
 
     setExistingPlayers([...ExistingPlayers, trimmedName]);
     setInputPlayer('');
-  };
+  }, [inputPlayer, ExistingPlayers]);
 
-  const handleRemovePlayer = (index: number) => {
-    setExistingPlayers(ExistingPlayers.filter((_, i) => i !== index));
-  };
+  const handleRemovePlayer = useCallback(
+    (index: number) => {
+      setExistingPlayers(ExistingPlayers.filter((_, i) => i !== index));
+    },
+    [ExistingPlayers]
+  );
 
-  const handleStartGame = () => {
+  const handleStartGame = useCallback(() => {
     if (ExistingPlayers.length > 0) {
       onGameStart({
         gameType,
@@ -43,7 +46,25 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
         playerNames: ExistingPlayers,
       });
     }
-  };
+  }, [ExistingPlayers, gameType, startingScore, onGameStart]);
+
+  const handleGameTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setGameType(e.target.value as GameType);
+  }, []);
+
+  const handleStartingScoreChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStartingScore(parseInt(e.target.value));
+  }, []);
+
+  const handlePlayerNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputPlayer(e.target.value);
+  }, []);
+
+  // Create a memoized handler for each player removal
+  const playerRemovalHandlers = useCallback(
+    (index: number) => () => handleRemovePlayer(index),
+    [handleRemovePlayer]
+  );
 
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-md">
@@ -56,7 +77,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
         <select
           id="game-type"
           value={gameType}
-          onChange={e => setGameType(e.target.value as GameType)}
+          onChange={handleGameTypeChange}
           className="w-full border rounded px-3 py-2"
         >
           <option value={GameType.X01}>X01</option>
@@ -73,7 +94,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
           <select
             id="starting-score"
             value={startingScore}
-            onChange={e => setStartingScore(parseInt(e.target.value))}
+            onChange={handleStartingScoreChange}
             className="w-full border rounded px-3 py-2"
           >
             <option value={301}>301</option>
@@ -93,7 +114,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
             id="player-name"
             type="text"
             value={inputPlayer}
-            onChange={e => setInputPlayer(e.target.value)}
+            onChange={handlePlayerNameChange}
             className="flex-1 border rounded px-3 py-2 mr-2"
           />
           <button
@@ -117,7 +138,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
               >
                 <span>{name}</span>
                 <button
-                  onClick={() => handleRemovePlayer(index)}
+                  onClick={playerRemovalHandlers(index)}
                   className="text-red-600 hover:text-red-800"
                 >
                   Remove
