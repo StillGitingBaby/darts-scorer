@@ -11,4 +11,4 @@ export default defineConfig({
       inline: ['vitest-canvas-mock'],
     },
   },
-}); 
+});

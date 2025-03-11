@@ -24,10 +24,12 @@ npm run lint:fix
 ### Common Issues:
 
 1. **React Performance Issues** (`react-perf/jsx-no-new-function-as-prop`):
+
    - Problem: Creating functions inline in JSX props causes unnecessary re-renders
    - Solution: Use `useCallback` to memoize functions
 
 2. **TypeScript Return Types** (`@typescript-eslint/explicit-function-return-type`):
+
    - Problem: Missing return type annotations on functions
    - Solution: Add explicit return types to functions
 
@@ -45,6 +47,7 @@ npm run analyze:bundle
 ```
 
 This will generate a visualization at `dist/stats.html` that shows:
+
 - The size of each module in your bundle
 - Dependencies that might be unnecessarily large
 - Opportunities for code splitting and tree shaking
@@ -56,4 +59,4 @@ For real-time code quality feedback:
 - ESLint
 - Error Lens
 - Import Cost
-- Prettier 
+- Prettier

@@ -11,8 +11,8 @@
     "test": "jest --config jest.config.cjs",
     "test:watch": "jest --watch --config jest.config.cjs",
     "test:coverage": "jest --coverage --config jest.config.cjs",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --config eslint.config.cjs",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix --config eslint.config.cjs",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --config eslint.config.cjs && prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" \"*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix --config eslint.config.cjs && prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" \"*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "analyze:bundle": "vite build"
   },
   "keywords": [],
