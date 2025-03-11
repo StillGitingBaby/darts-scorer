@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 
+import CheckoutDisplay from './CheckoutDisplay';
 import GameSetup from './GameSetup';
 import PlayerList from './PlayerList';
 import ScoreInput from './ScoreInput';
 import { Game, GameType } from '../models/Game';
+import { MAX_CHECKOUT_SCORE } from '../utils/checkoutRoutes';
 
 const GameBoard: React.FC = () => {
   const [game, setGame] = useState<Game | null>(null);
@@ -75,6 +77,15 @@ const GameBoard: React.FC = () => {
     setGameOver(false);
   };
 
+  // Helper function to determine if we should show checkout routes
+  const shouldShowCheckoutRoutes = (): boolean => {
+    if (!game || gameOver || game.type !== GameType.X01) {
+      return false;
+    }
+    // Only show checkout routes for X01 games when score is at or below MAX_CHECKOUT_SCORE
+    return game.currentPlayer && game.currentPlayer.score <= MAX_CHECKOUT_SCORE;
+  };
+
   return (
     <div className="container mx-auto p-4">
       {!game ? (
@@ -115,6 +126,11 @@ const GameBoard: React.FC = () => {
                   : 'No players added yet'}
               </p>
             </div>
+          )}
+
+          {/* Show checkout routes for X01 games when not game over */}
+          {shouldShowCheckoutRoutes() && game.currentPlayer && (
+            <CheckoutDisplay score={game.currentPlayer.score} />
           )}
 
           <PlayerList players={game.players} currentPlayerIndex={game.currentPlayerIndex} />
