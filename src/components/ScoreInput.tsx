@@ -1,5 +1,5 @@
 import confetti from 'canvas-confetti';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 interface ScoreInputProps {
   onScoreSubmit: (score: number) => void;
@@ -26,25 +26,6 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
     return '';
   };
 
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      const numericScore = parseInt(score);
-
-    if (!isNaN(numericScore) && numericScore >= 0) {
-      if (isValidScore(numericScore)) {
-        onScoreSubmit(numericScore);
-        if (numericScore === 180) {
-          launchConfetti();
-        }
-        setScore('');
-        setError('');
-      } else {
-        setError(getErrorMessage(numericScore));
-      }
-    }
-  };
-
   const launchConfetti = () => {
     confetti({
       particleCount: 200,
@@ -55,6 +36,27 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
       origin: { y: 0.6 },
     });
   };
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const numericScore = parseInt(score);
+
+      if (!isNaN(numericScore) && numericScore >= 0) {
+        if (isValidScore(numericScore)) {
+          onScoreSubmit(numericScore);
+          if (numericScore === 180) {
+            launchConfetti();
+          }
+          setScore('');
+          setError('');
+        } else {
+          setError(getErrorMessage(numericScore));
+        }
+      }
+    },
+    [score, onScoreSubmit, isValidScore, getErrorMessage, setScore, setError, launchConfetti]
+  );
 
   return (
     <div className="mt-6">
@@ -69,7 +71,10 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
             id="score-input"
             type="number"
             value={score}
-            onChange={useCallback(e => setScore(e.target.value), [setScore])}
+            onChange={useCallback(
+              (e: React.ChangeEvent<HTMLInputElement>) => setScore(e.target.value),
+              [setScore]
+            )}
             className="border rounded px-3 py-2 w-20 mr-2"
             min="0"
             max={MAX_POSSIBLE_SCORE}
