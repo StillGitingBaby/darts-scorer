@@ -14,7 +14,7 @@ jobs:
           # Get the event type and whether it's from a PR
           EVENT_TYPE="${{ github.event_name }}"
           IS_PR="${{ github.event.pull_request != '' }}"
-          
+
           # Allow the push if:
           # 1. It's from a PR merge (IS_PR is true)
           # 2. It's from an automated workflow (github-actions[bot] or dependabot[bot])
@@ -22,8 +22,8 @@ jobs:
             echo "Push allowed: $([ "$IS_PR" = "true" ] && echo "PR merge" || echo "Automated workflow")"
             exit 0
           fi
-          
+
           # Block all other pushes to main
           echo "ERROR: Direct pushes to the main branch are not allowed."
           echo "Please create a feature branch and submit a pull request instead."
-          exit 1 
+          exit 1

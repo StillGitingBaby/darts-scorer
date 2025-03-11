@@ -23,6 +23,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameStart }) => {
 
     if (ExistingPlayers.includes(trimmedName)) {
       alert('This name is already taken. Please choose a different name.');
+      setInputPlayer(''); // Clear the input field even for duplicate names
       return;
     }
 

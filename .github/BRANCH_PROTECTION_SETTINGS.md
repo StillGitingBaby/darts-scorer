@@ -16,10 +16,12 @@ To set up branch protection on GitHub:
 ### Required Settings
 
 - ✅ "Require a pull request before merging"
+
   - ✅ "Require approvals" (set to at least 1)
   - ✅ "Dismiss stale pull request approvals when new commits are pushed"
 
 - ✅ "Require status checks to pass before merging"
+
   - ✅ "Require branches to be up to date before merging"
   - Add the following status checks:
     - `test-and-lint` (from the main.yml workflow)
@@ -30,4 +32,4 @@ To set up branch protection on GitHub:
 - ❌ "Allow force pushes"
 - ❌ "Allow deletions"
 
-7. Click "Create" or "Save changes" 
+7. Click "Create" or "Save changes"

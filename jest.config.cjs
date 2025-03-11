@@ -6,4 +6,4 @@ module.exports = {
     '\\.(css|less|scss|sass)$': '<rootDir>/src/tests/mocks/styleMock.js',
   },
   setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
-}; 
+};

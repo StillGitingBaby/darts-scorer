@@ -20,8 +20,8 @@ module.exports = [
       '*.config.cjs',
       '*.config.ts',
       'vite.config.ts',
-      'vitest.config.ts'
-    ]
+      'vitest.config.ts',
+    ],
   },
   // Base configuration for all JavaScript and TypeScript files
   {
@@ -32,14 +32,14 @@ module.exports = [
       parser: typescriptParser,
       parserOptions: {
         ecmaFeatures: {
-          jsx: true
-        }
+          jsx: true,
+        },
       },
       globals: {
         document: 'readonly',
         navigator: 'readonly',
-        window: 'readonly'
-      }
+        window: 'readonly',
+      },
     },
     plugins: {
       react: reactPlugin,
@@ -49,17 +49,17 @@ module.exports = [
       prettier: prettierPlugin,
       'jsx-a11y': jsxA11yPlugin,
       sonarjs: sonarjsPlugin,
-      'react-perf': reactPerfPlugin
+      'react-perf': reactPerfPlugin,
     },
     settings: {
       react: {
-        version: 'detect'
+        version: 'detect',
       },
       'import/resolver': {
         node: {
-          extensions: ['.js', '.jsx', '.ts', '.tsx']
-        }
-      }
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        },
+      },
     },
     rules: {
       'react/react-in-jsx-scope': 'off',
@@ -71,8 +71,8 @@ module.exports = [
         {
           groups: ['builtin', 'external', 'internal', ['parent', 'sibling'], 'index'],
           'newlines-between': 'always',
-          alphabetize: { order: 'asc', caseInsensitive: true }
-        }
+          alphabetize: { order: 'asc', caseInsensitive: true },
+        },
       ],
       'sonarjs/cognitive-complexity': 'warn',
       'sonarjs/no-identical-functions': 'warn',
@@ -81,7 +81,7 @@ module.exports = [
       'jsx-a11y/anchor-is-valid': 'warn',
       'react-perf/jsx-no-new-object-as-prop': 'warn',
       'react-perf/jsx-no-new-array-as-prop': 'warn',
-      'react-perf/jsx-no-new-function-as-prop': 'warn'
-    }
-  }
-]; 
+      'react-perf/jsx-no-new-function-as-prop': 'warn',
+    },
+  },
+];
