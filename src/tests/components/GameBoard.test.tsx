@@ -4,6 +4,16 @@ import React from 'react';
 import GameBoard from '../../components/GameBoard';
 import { GameType } from '../../models/Game';
 
+// Constants for duplicate strings
+const TEST_PLAYER = 'Test Player';
+const PLAYER_1 = 'Player 1';
+const PLAYER_2 = 'Player 2';
+const SCORE_60 = '60';
+const SCORE_45 = '45';
+const SCORE_100 = '100';
+const ADD_PLAYER = 'Add Player';
+const START_GAME = 'Start Game';
+
 describe('GameBoard', () => {
   // Test initial render
   it('should render the game setup initially', () => {
@@ -24,17 +34,17 @@ describe('GameBoard', () => {
 
     // Add a player
     const playerInput = screen.getByLabelText('Player Name:');
-    fireEvent.change(playerInput, { target: { value: 'Test Player' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+    fireEvent.change(playerInput, { target: { value: TEST_PLAYER } });
+    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
     // Start the game
-    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
+    fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Check if game board is rendered
     expect(screen.getByText(/X01/)).toBeInTheDocument();
-    expect(screen.getByText('Test Player')).toBeInTheDocument();
+    expect(screen.getByText(TEST_PLAYER)).toBeInTheDocument();
     expect(screen.getByText('Current Turn')).toBeInTheDocument();
-    expect(screen.getByText("Test Player's turn to throw")).toBeInTheDocument();
+    expect(screen.getByText(`${TEST_PLAYER}'s turn to throw`)).toBeInTheDocument();
   });
 
   // Test score submission
@@ -46,13 +56,13 @@ describe('GameBoard', () => {
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
     const playerInput = screen.getByLabelText('Player Name:');
-    fireEvent.change(playerInput, { target: { value: 'Player 1' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+    fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
-    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
+    fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Submit a score
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '60' } });
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_60 } });
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     // Check if score is updated (501 - 60 = 441)
@@ -70,20 +80,20 @@ describe('GameBoard', () => {
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
     const playerInput = screen.getByLabelText('Player Name:');
-    fireEvent.change(playerInput, { target: { value: 'Player 1' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+    fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
-    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
+    fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Submit a score
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '60' } });
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_60 } });
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     // Check if visit score is displayed
     const playerItem = screen.getByTestId('player-item');
     const lastVisitText = within(playerItem).getByText('Last visit:');
     expect(lastVisitText).toBeInTheDocument();
-    expect(lastVisitText.nextSibling).toHaveTextContent('60');
+    expect(lastVisitText.nextSibling).toHaveTextContent(SCORE_60);
     expect(within(playerItem).getByText('Visit history:')).toBeInTheDocument();
   });
 
@@ -96,30 +106,30 @@ describe('GameBoard', () => {
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
     const playerInput = screen.getByLabelText('Player Name:');
-    fireEvent.change(playerInput, { target: { value: 'Player 1' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+    fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
-    fireEvent.change(playerInput, { target: { value: 'Player 2' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+    fireEvent.change(playerInput, { target: { value: PLAYER_2 } });
+    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
-    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
+    fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Submit scores for both players
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '60' } });
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_60 } });
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '45' } });
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_45 } });
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     // Submit another score for first player
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '100' } });
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_100 } });
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     // Check if visit history shows multiple scores for first player
     const playerItems = screen.getAllByTestId('player-item');
     const player1Item = playerItems[0]; // First player
     const visitHistoryText = within(player1Item).getByText('Visit history:');
-    expect(visitHistoryText.nextSibling).toHaveTextContent('60, 100');
+    expect(visitHistoryText.nextSibling).toHaveTextContent(`${SCORE_60}, ${SCORE_100}`);
   });
 
   // Test game reset - this covers the uncovered lines 52, 57-68
@@ -131,13 +141,13 @@ describe('GameBoard', () => {
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
     const playerInput = screen.getByLabelText('Player Name:');
-    fireEvent.change(playerInput, { target: { value: 'Player 1' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+    fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
-    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
+    fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Submit a score to change the game state
-    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: '60' } });
+    fireEvent.change(screen.getByLabelText('Enter Score:'), { target: { value: SCORE_60 } });
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     // Reset the game
@@ -160,10 +170,10 @@ describe('GameBoard', () => {
     fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
 
     const playerInput = screen.getByLabelText('Player Name:');
-    fireEvent.change(playerInput, { target: { value: 'Player 1' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Add Player' }));
+    fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
 
-    fireEvent.click(screen.getByRole('button', { name: 'Start Game' }));
+    fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
     // Verify game is started
     expect(screen.getByText(/X01/)).toBeInTheDocument();
