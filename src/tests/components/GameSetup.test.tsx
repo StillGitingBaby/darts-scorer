@@ -81,6 +81,10 @@ describe('GameSetup', () => {
 
   it('should not allow duplicate player names', () => {
     const onGameStart = jest.fn();
+
+    // Mock window.alert
+    const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
     render(<GameSetup onGameStart={onGameStart} />);
 
     const playerNameInput = screen.getByLabelText('Player Name:');
@@ -100,10 +104,15 @@ describe('GameSetup', () => {
     const playersList = screen.getAllByText('John');
     expect(playersList.length).toBe(1);
 
-    // (Optional) Check for an error message if your UI displays one
-    expect(screen.queryByText('Duplicate player names are not allowed')).toBeInTheDocument();
+    // Check that alert was called with the correct message
+    expect(alertMock).toHaveBeenCalledWith(
+      'This name is already taken. Please choose a different name.'
+    );
 
     // Ensure input is cleared after valid entry
     expect(playerNameInput).toHaveValue('');
+
+    // Clean up mock
+    alertMock.mockRestore();
   });
 });
