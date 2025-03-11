@@ -10,7 +10,7 @@ export default defineConfig({
       filename: 'dist/stats.html',
       gzipSize: true,
       brotliSize: true,
-    })
+    }),
   ],
   server: {
     port: 3000,
@@ -21,4 +21,4 @@ export default defineConfig({
   css: {
     postcss: './postcss.config.cjs',
   },
-}); 
+});
