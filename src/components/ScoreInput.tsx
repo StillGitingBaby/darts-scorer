@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 interface ScoreInputProps {
   onScoreSubmit: (score: number) => void;
@@ -25,20 +25,23 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
     return '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const numericScore = parseInt(score);
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const numericScore = parseInt(score);
 
-    if (!isNaN(numericScore) && numericScore >= 0) {
-      if (isValidScore(numericScore)) {
-        onScoreSubmit(numericScore);
-        setScore('');
-        setError('');
-      } else {
-        setError(getErrorMessage(numericScore));
+      if (!isNaN(numericScore) && numericScore >= 0) {
+        if (isValidScore(numericScore)) {
+          onScoreSubmit(numericScore);
+          setScore('');
+          setError('');
+        } else {
+          setError(getErrorMessage(numericScore));
+        }
       }
-    }
-  };
+    },
+    [score, onScoreSubmit, isValidScore, getErrorMessage, setScore, setError]
+  );
 
   return (
     <div className="mt-6">
@@ -53,7 +56,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
             id="score-input"
             type="number"
             value={score}
-            onChange={e => setScore(e.target.value)}
+            onChange={useCallback(e => setScore(e.target.value), [setScore])}
             className="border rounded px-3 py-2 w-20 mr-2"
             min="0"
             max={MAX_POSSIBLE_SCORE}
