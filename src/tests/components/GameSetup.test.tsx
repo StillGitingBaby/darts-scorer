@@ -78,4 +78,41 @@ describe('GameSetup', () => {
 
     expect(onGameStart).not.toHaveBeenCalled();
   });
+
+  it('should not allow duplicate player names', () => {
+    const onGameStart = jest.fn();
+
+    // Mock window.alert
+    const alertMock = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+    render(<GameSetup onGameStart={onGameStart} />);
+
+    const playerNameInput = screen.getByLabelText('Player Name:');
+    const addPlayerButton = screen.getByRole('button', { name: 'Add Player' });
+
+    const playerName = 'John';
+
+    // Add a player named "John"
+    fireEvent.change(playerNameInput, { target: { value: playerName } });
+    fireEvent.click(addPlayerButton);
+
+    // Try adding "John" again
+    fireEvent.change(playerNameInput, { target: { value: playerName } });
+    fireEvent.click(addPlayerButton);
+
+    // Ensure "John" appears only once in the players list
+    const playersList = screen.getAllByText('John');
+    expect(playersList.length).toBe(1);
+
+    // Check that alert was called with the correct message
+    expect(alertMock).toHaveBeenCalledWith(
+      'This name is already taken. Please choose a different name.'
+    );
+
+    // Ensure input is cleared after valid entry
+    expect(playerNameInput).toHaveValue('');
+
+    // Clean up mock
+    alertMock.mockRestore();
+  });
 });
