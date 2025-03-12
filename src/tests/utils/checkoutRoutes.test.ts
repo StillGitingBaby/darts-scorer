@@ -50,16 +50,54 @@ describe('checkoutRoutes utility', () => {
     });
 
     it('should return simple double suggestions for even scores without predefined routes', () => {
-      // Create a mock score that's not in the predefined routes
-      // We need to find a score that's not already in CHECKOUT_ROUTES
-      // Let's use 42 as an example, but first check if it's in CHECKOUT_ROUTES
-      const mockScore = 42;
+      // Find an even score <= 40 that's not in the predefined routes
+      let testScore = 38;
+      while (CHECKOUT_ROUTES[testScore] && testScore > 0) {
+        testScore -= 2;
+      }
+      
+      // If we found a suitable test score
+      if (testScore > 0 && !CHECKOUT_ROUTES[testScore]) {
+        expect(getCheckoutRoutes(testScore)).toEqual([`D${testScore / 2}`]);
+      } else {
+        // Manually create a test case by temporarily removing a score from CHECKOUT_ROUTES
+        const originalRoutes = CHECKOUT_ROUTES[38];
+        delete CHECKOUT_ROUTES[38];
+        
+        try {
+          expect(getCheckoutRoutes(38)).toEqual(['D19']);
+        } finally {
+          // Restore the original routes
+          if (originalRoutes) {
+            CHECKOUT_ROUTES[38] = originalRoutes;
+          }
+        }
+      }
+    });
 
-      // Get the actual routes for this score
-      const actualRoutes = CHECKOUT_ROUTES[mockScore];
-
-      // Verify it returns the expected routes
-      expect(getCheckoutRoutes(mockScore)).toEqual(actualRoutes);
+    it('should return a generic suggestion for scores without predefined routes that are not even or <= 40', () => {
+      // We need to test an odd score that's not in IMPOSSIBLE_CHECKOUT_SCORES
+      // and not in CHECKOUT_ROUTES
+      // Let's use a score that's even (so it passes isCheckoutPossible) but > 40
+      const testScore = 42; // Even number > 40
+      
+      // Make sure it's not already in CHECKOUT_ROUTES
+      if (!CHECKOUT_ROUTES[testScore]) {
+        expect(getCheckoutRoutes(testScore)).toEqual(['Checkout possible']);
+      } else {
+        // Temporarily remove it from CHECKOUT_ROUTES
+        const originalRoutes = CHECKOUT_ROUTES[testScore];
+        delete CHECKOUT_ROUTES[testScore];
+        
+        try {
+          expect(getCheckoutRoutes(testScore)).toEqual(['Checkout possible']);
+        } finally {
+          // Restore the original routes
+          if (originalRoutes) {
+            CHECKOUT_ROUTES[testScore] = originalRoutes;
+          }
+        }
+      }
     });
 
     it('should handle odd number checkouts correctly', () => {
