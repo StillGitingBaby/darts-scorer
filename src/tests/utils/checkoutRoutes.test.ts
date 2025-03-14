@@ -55,7 +55,7 @@ describe('checkoutRoutes utility', () => {
       while (CHECKOUT_ROUTES[testScore] && testScore > 0) {
         testScore -= 2;
       }
-      
+
       // If we found a suitable test score
       if (testScore > 0 && !CHECKOUT_ROUTES[testScore]) {
         expect(getCheckoutRoutes(testScore)).toEqual([`D${testScore / 2}`]);
@@ -63,7 +63,7 @@ describe('checkoutRoutes utility', () => {
         // Manually create a test case by temporarily removing a score from CHECKOUT_ROUTES
         const originalRoutes = CHECKOUT_ROUTES[38];
         delete CHECKOUT_ROUTES[38];
-        
+
         try {
           expect(getCheckoutRoutes(38)).toEqual(['D19']);
         } finally {
@@ -80,7 +80,7 @@ describe('checkoutRoutes utility', () => {
       // and not in CHECKOUT_ROUTES
       // Let's use a score that's even (so it passes isCheckoutPossible) but > 40
       const testScore = 42; // Even number > 40
-      
+
       // Make sure it's not already in CHECKOUT_ROUTES
       if (!CHECKOUT_ROUTES[testScore]) {
         expect(getCheckoutRoutes(testScore)).toEqual(['Checkout possible']);
@@ -88,7 +88,7 @@ describe('checkoutRoutes utility', () => {
         // Temporarily remove it from CHECKOUT_ROUTES
         const originalRoutes = CHECKOUT_ROUTES[testScore];
         delete CHECKOUT_ROUTES[testScore];
-        
+
         try {
           expect(getCheckoutRoutes(testScore)).toEqual(['Checkout possible']);
         } finally {
