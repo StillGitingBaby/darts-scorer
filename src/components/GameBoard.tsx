@@ -123,11 +123,11 @@ const GameBoard: React.FC = () => {
   // Helper function to get the undo button text
   const getUndoButtonText = (): string => {
     if (!game || game.scoreHistory.length === 0) return 'Undo Last Score';
-    
+
     // Get the last score entry
     const lastScore = game.scoreHistory[game.scoreHistory.length - 1];
     const playerName = game.players[lastScore.playerIndex].name;
-    
+
     return `Undo ${playerName}'s Last Score (${lastScore.score})`;
   };
 
