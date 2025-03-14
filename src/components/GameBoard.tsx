@@ -44,6 +44,8 @@ const GameBoard: React.FC = () => {
 
       // Set the current player index to match the original game
       updatedGame.currentPlayerIndex = game.currentPlayerIndex;
+      // Copy the score history
+      updatedGame.scoreHistory = [...game.scoreHistory];
 
       // Record the score in the updated game
       updatedGame.recordScore(score);
@@ -118,6 +120,17 @@ const GameBoard: React.FC = () => {
     return game.currentPlayer && game.currentPlayer.score <= MAX_CHECKOUT_SCORE;
   };
 
+  // Helper function to get the undo button text
+  const getUndoButtonText = (): string => {
+    if (!game || game.scoreHistory.length === 0) return 'Undo Last Score';
+
+    // Get the last score entry
+    const lastScore = game.scoreHistory[game.scoreHistory.length - 1];
+    const playerName = game.players[lastScore.playerIndex].name;
+
+    return `Undo ${playerName}'s Last Score (${lastScore.score})`;
+  };
+
   return (
     <div className="container mx-auto p-4">
       {!game ? (
@@ -134,7 +147,7 @@ const GameBoard: React.FC = () => {
                 disabled={!game || game.scoreHistory.length === 0}
                 className="bg-orange-500 text-white px-4 py-2 rounded mr-2 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
-                Undo Last Score
+                {getUndoButtonText()}
               </button>
               <button
                 onClick={handleResetGame}
