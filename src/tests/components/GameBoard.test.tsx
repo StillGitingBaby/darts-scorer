@@ -24,7 +24,21 @@ const NEW_GAME = 'New Game';
 const LAST_VISIT = 'Last visit:';
 const VISIT_HISTORY = 'Visit history:';
 const PLAYER_ITEM_TEST_ID = 'player-item';
-const UNDO_LAST_SCORE = 'Undo Last Score';
+
+// Helper function to find the undo button
+const findUndoButton = () => {
+  return screen.getByText(/Undo.*Score/);
+};
+
+// Helper function to get the button element
+const getUndoButtonElement = () => {
+  const textElement = findUndoButton();
+  const buttonElement = textElement.closest('button');
+  if (!buttonElement) {
+    throw new Error('Undo button not found');
+  }
+  return buttonElement;
+};
 
 describe('GameBoard', () => {
   // Test initial render
@@ -213,7 +227,8 @@ describe('GameBoard', () => {
       fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
       // Check if the Undo Last Score button is rendered
-      expect(screen.getByRole('button', { name: UNDO_LAST_SCORE })).toBeInTheDocument();
+      const undoButton = findUndoButton();
+      expect(undoButton).toBeInTheDocument();
     });
 
     it('should have the Undo Last Score button disabled initially', () => {
@@ -230,7 +245,7 @@ describe('GameBoard', () => {
       fireEvent.click(screen.getByRole('button', { name: START_GAME }));
 
       // Check if the Undo Last Score button is disabled
-      const undoButton = screen.getByRole('button', { name: UNDO_LAST_SCORE });
+      const undoButton = getUndoButtonElement();
       expect(undoButton).toBeDisabled();
     });
 
@@ -252,7 +267,7 @@ describe('GameBoard', () => {
       fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
 
       // Check if the Undo Last Score button is enabled
-      const undoButton = screen.getByRole('button', { name: UNDO_LAST_SCORE });
+      const undoButton = getUndoButtonElement();
       expect(undoButton).not.toBeDisabled();
     });
 
@@ -279,7 +294,8 @@ describe('GameBoard', () => {
       expect(scoreElement).toBeInTheDocument();
 
       // Click the Undo Last Score button
-      fireEvent.click(screen.getByRole('button', { name: UNDO_LAST_SCORE }));
+      const undoButton = getUndoButtonElement();
+      fireEvent.click(undoButton);
 
       // Get the player's score after undo
       const updatedScoreElement = within(playerItem).getByText('501');
@@ -314,7 +330,8 @@ describe('GameBoard', () => {
       expect(screen.getByText(`${PLAYER_2}'s turn to throw`)).toBeInTheDocument();
 
       // Undo the last score
-      fireEvent.click(screen.getByRole('button', { name: UNDO_LAST_SCORE }));
+      const undoButton = getUndoButtonElement();
+      fireEvent.click(undoButton);
 
       // It should be Player 1's turn again
       expect(screen.getByText(`${PLAYER_1}'s turn to throw`)).toBeInTheDocument();
@@ -338,11 +355,12 @@ describe('GameBoard', () => {
       fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
 
       // Undo the score
-      fireEvent.click(screen.getByRole('button', { name: UNDO_LAST_SCORE }));
+      const undoButton = getUndoButtonElement();
+      fireEvent.click(undoButton);
 
       // The Undo Last Score button should be disabled again
-      const undoButton = screen.getByRole('button', { name: UNDO_LAST_SCORE });
-      expect(undoButton).toBeDisabled();
+      const updatedUndoButton = getUndoButtonElement();
+      expect(updatedUndoButton).toBeDisabled();
     });
   });
 });
