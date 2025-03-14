@@ -6,6 +6,13 @@ export enum GameType {
   AroundTheClock = 'AroundTheClock',
 }
 
+// Define a type for score history
+export interface ScoreHistory {
+  playerIndex: number;
+  score: number;
+  previousScore: number;
+}
+
 export class Game {
   type: GameType;
   startingScore: number;
@@ -13,6 +20,7 @@ export class Game {
   currentPlayerIndex: number = 0;
   isGameOver: boolean = false;
   winner: Player | null = null;
+  scoreHistory: ScoreHistory[] = [];
 
   constructor(type: GameType, startingScore: number = 501) {
     this.type = type;
@@ -35,6 +43,7 @@ export class Game {
     if (this.isGameOver) return;
 
     const player = this.currentPlayer;
+    const previousScore = player.score;
 
     if (this.type === GameType.X01) {
       // In X01 games, we need to check if the score would go below 0
@@ -49,6 +58,13 @@ export class Game {
       // Subtract the score
       player.subtractScore(score);
 
+      // Add to score history
+      this.scoreHistory.push({
+        playerIndex: this.currentPlayerIndex,
+        score: score,
+        previousScore: previousScore,
+      });
+
       // Check if the player has won
       if (player.score === 0) {
         this.isGameOver = true;
@@ -59,6 +75,32 @@ export class Game {
 
     // Move to the next player's turn
     this.nextTurn();
+  }
+
+  undoLastMove(): void {
+    if (this.scoreHistory.length === 0) return;
+
+    // Get the last move
+    const lastMove = this.scoreHistory.pop();
+    if (!lastMove) return;
+
+    // If the game was over, reset that state
+    if (this.isGameOver) {
+      this.isGameOver = false;
+      this.winner = null;
+    }
+
+    // Go back to the previous player
+    // We need to adjust the index to go back to the previous player
+    this.currentPlayerIndex = lastMove.playerIndex;
+    // Get the player who made the last move
+    const player = this.players[lastMove.playerIndex];
+    // Remove the last visit score
+    if (player.visitScores.length > 0) {
+      player.visitScores.pop();
+    }
+    // Restore the previous score
+    player.score = lastMove.previousScore;
   }
 
   reset(): void {
@@ -72,5 +114,6 @@ export class Game {
     this.currentPlayerIndex = 0;
     this.isGameOver = false;
     this.winner = null;
+    this.scoreHistory = [];
   }
 }
