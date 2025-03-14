@@ -141,4 +141,98 @@ describe('Game', () => {
     expect(game.players[0].visitScores).toEqual([]);
     expect(game.players[1].visitScores).toEqual([]);
   });
+
+  // Tests for the undo functionality
+  describe('undoLastMove', () => {
+    it('should record scores in the score history', () => {
+      const game = new Game(GameType.X01, 501);
+      game.addPlayer('John');
+
+      game.recordScore(60);
+
+      expect(game.scoreHistory.length).toBe(1);
+      expect(game.scoreHistory[0].score).toBe(60);
+      expect(game.scoreHistory[0].previousScore).toBe(501);
+      expect(game.scoreHistory[0].playerIndex).toBe(0);
+    });
+
+    it('should undo the last move', () => {
+      const game = new Game(GameType.X01, 501);
+      game.addPlayer('John');
+      game.addPlayer('Jane');
+
+      game.recordScore(60); // John scores 60
+      expect(game.players[0].score).toBe(441);
+      expect(game.currentPlayerIndex).toBe(1); // Now Jane's turn
+
+      game.undoLastMove();
+
+      // John's score should be restored
+      expect(game.players[0].score).toBe(501);
+      // Current player should be back to John
+      expect(game.currentPlayerIndex).toBe(0);
+      // Score history should be empty
+      expect(game.scoreHistory.length).toBe(0);
+    });
+
+    it('should remove the last visit score when undoing a move', () => {
+      const game = new Game(GameType.X01, 501);
+      game.addPlayer('John');
+
+      // John scores
+      game.recordScore(60);
+      expect(game.players[0].visitScores).toEqual([60]);
+
+      // Undo the move
+      game.undoLastMove();
+
+      // Visit score should be removed
+      expect(game.players[0].visitScores).toEqual([]);
+    });
+
+    it('should do nothing if there are no moves to undo', () => {
+      const game = new Game(GameType.X01, 501);
+      game.addPlayer('John');
+
+      // No moves recorded yet
+      expect(game.scoreHistory.length).toBe(0);
+
+      // Try to undo
+      game.undoLastMove();
+
+      // Nothing should change
+      expect(game.currentPlayerIndex).toBe(0);
+      expect(game.players[0].score).toBe(501);
+    });
+
+    it('should reset game over state when undoing a winning move', () => {
+      const game = new Game(GameType.X01, 60);
+      game.addPlayer('John');
+
+      // Win the game
+      game.recordScore(60);
+      expect(game.isGameOver).toBe(true);
+      expect(game.winner).not.toBeNull();
+
+      // Undo the winning move
+      game.undoLastMove();
+
+      // Game should no longer be over
+      expect(game.isGameOver).toBe(false);
+      expect(game.winner).toBeNull();
+      expect(game.players[0].score).toBe(60);
+    });
+
+    it('should clear score history when resetting the game', () => {
+      const game = new Game(GameType.X01, 501);
+      game.addPlayer('John');
+
+      game.recordScore(60);
+      expect(game.scoreHistory.length).toBe(1);
+
+      game.reset();
+
+      expect(game.scoreHistory.length).toBe(0);
+    });
+  });
 });
