@@ -24,6 +24,7 @@ const NEW_GAME = 'New Game';
 const LAST_VISIT = 'Last visit:';
 const VISIT_HISTORY = 'Visit history:';
 const PLAYER_ITEM_TEST_ID = 'player-item';
+const UNDO_LAST_SCORE = 'Undo Last Score';
 
 describe('GameBoard', () => {
   // Test initial render
@@ -194,5 +195,154 @@ describe('GameBoard', () => {
 
     // Verify we're back to game setup
     expect(screen.getByText(GAME_SETUP)).toBeInTheDocument();
+  });
+
+  // Tests for the undo functionality
+  describe('Undo functionality', () => {
+    it('should render the Undo Last Score button when game is started', () => {
+      render(<GameBoard />);
+
+      // Setup and start game
+      const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
+      fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
+
+      const playerInput = screen.getByLabelText(PLAYER_NAME);
+      fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+      fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
+
+      fireEvent.click(screen.getByRole('button', { name: START_GAME }));
+
+      // Check if the Undo Last Score button is rendered
+      expect(screen.getByRole('button', { name: UNDO_LAST_SCORE })).toBeInTheDocument();
+    });
+
+    it('should have the Undo Last Score button disabled initially', () => {
+      render(<GameBoard />);
+
+      // Setup and start game
+      const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
+      fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
+
+      const playerInput = screen.getByLabelText(PLAYER_NAME);
+      fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+      fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
+
+      fireEvent.click(screen.getByRole('button', { name: START_GAME }));
+
+      // Check if the Undo Last Score button is disabled
+      const undoButton = screen.getByRole('button', { name: UNDO_LAST_SCORE });
+      expect(undoButton).toBeDisabled();
+    });
+
+    it('should enable the Undo Last Score button after a score is submitted', () => {
+      render(<GameBoard />);
+
+      // Setup and start game
+      const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
+      fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
+
+      const playerInput = screen.getByLabelText(PLAYER_NAME);
+      fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+      fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
+
+      fireEvent.click(screen.getByRole('button', { name: START_GAME }));
+
+      // Submit a score
+      fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_60 } });
+      fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
+
+      // Check if the Undo Last Score button is enabled
+      const undoButton = screen.getByRole('button', { name: UNDO_LAST_SCORE });
+      expect(undoButton).not.toBeDisabled();
+    });
+
+    it('should undo the last score when Undo Last Score button is clicked', () => {
+      render(<GameBoard />);
+
+      // Setup and start game
+      const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
+      fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
+
+      const playerInput = screen.getByLabelText(PLAYER_NAME);
+      fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+      fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
+
+      fireEvent.click(screen.getByRole('button', { name: START_GAME }));
+
+      // Submit a score
+      fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_60 } });
+      fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
+
+      // Get the player's score after submission
+      const playerItem = screen.getByTestId(PLAYER_ITEM_TEST_ID);
+      const scoreElement = within(playerItem).getByText('441');
+      expect(scoreElement).toBeInTheDocument();
+
+      // Click the Undo Last Score button
+      fireEvent.click(screen.getByRole('button', { name: UNDO_LAST_SCORE }));
+
+      // Get the player's score after undo
+      const updatedScoreElement = within(playerItem).getByText('501');
+      expect(updatedScoreElement).toBeInTheDocument();
+
+      // The visit history should be cleared
+      expect(screen.queryByText(LAST_VISIT)).not.toBeInTheDocument();
+      expect(screen.queryByText(VISIT_HISTORY)).not.toBeInTheDocument();
+    });
+
+    it('should restore the correct player turn when undoing a score', () => {
+      render(<GameBoard />);
+
+      // Setup and start game with two players
+      const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
+      fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
+
+      const playerInput = screen.getByLabelText(PLAYER_NAME);
+      fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+      fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
+
+      fireEvent.change(playerInput, { target: { value: PLAYER_2 } });
+      fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
+
+      fireEvent.click(screen.getByRole('button', { name: START_GAME }));
+
+      // Submit a score for Player 1
+      fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_60 } });
+      fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
+
+      // Now it should be Player 2's turn
+      expect(screen.getByText(`${PLAYER_2}'s turn to throw`)).toBeInTheDocument();
+
+      // Undo the last score
+      fireEvent.click(screen.getByRole('button', { name: UNDO_LAST_SCORE }));
+
+      // It should be Player 1's turn again
+      expect(screen.getByText(`${PLAYER_1}'s turn to throw`)).toBeInTheDocument();
+    });
+
+    it('should disable the Undo Last Score button after undoing all moves', () => {
+      render(<GameBoard />);
+
+      // Setup and start game
+      const gameTypeSelect = screen.getByLabelText(GAME_TYPE);
+      fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
+
+      const playerInput = screen.getByLabelText(PLAYER_NAME);
+      fireEvent.change(playerInput, { target: { value: PLAYER_1 } });
+      fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
+
+      fireEvent.click(screen.getByRole('button', { name: START_GAME }));
+
+      // Submit a score
+      fireEvent.change(screen.getByLabelText(ENTER_SCORE), { target: { value: SCORE_60 } });
+      fireEvent.click(screen.getByRole('button', { name: SUBMIT }));
+
+      // Undo the score
+      fireEvent.click(screen.getByRole('button', { name: UNDO_LAST_SCORE }));
+
+      // The Undo Last Score button should be disabled again
+      const undoButton = screen.getByRole('button', { name: UNDO_LAST_SCORE });
+      expect(undoButton).toBeDisabled();
+    });
   });
 });
