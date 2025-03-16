@@ -187,7 +187,7 @@ const GameBoard: React.FC = () => {
 
           <PlayerList players={game.players} currentPlayerIndex={game.currentPlayerIndex} />
 
-          {!gameOver && <ScoreInput onScoreSubmit={handleScoreSubmit} />}
+          {!gameOver && <ScoreInput onScoreSubmit={handleScoreSubmit} autoFocus={true} />}
         </div>
       )}
     </div>
