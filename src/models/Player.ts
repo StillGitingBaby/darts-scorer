@@ -30,7 +30,7 @@ export class Player {
     if (this.visitScores.length === 0) {
       return 0;
     }
-    
+
     const totalScore = this.visitScores.reduce((sum, score) => sum + score, 0);
     return parseFloat((totalScore / this.visitScores.length).toFixed(1));
   }

@@ -79,7 +79,7 @@ describe('Player', () => {
       player.addVisitScore(60);
       player.addVisitScore(45);
       player.addVisitScore(100);
-      
+
       // (60 + 45 + 100) / 3 = 68.3333... rounded to 68.3
       expect(player.getThreeDartAverage()).toBe(68.3);
     });
@@ -87,7 +87,7 @@ describe('Player', () => {
     it('should handle a single visit score', () => {
       const player = new Player('John');
       player.addVisitScore(60);
-      
+
       expect(player.getThreeDartAverage()).toBe(60);
     });
 
@@ -95,11 +95,11 @@ describe('Player', () => {
       const player = new Player('John');
       player.addVisitScore(60);
       expect(player.getThreeDartAverage()).toBe(60);
-      
+
       player.addVisitScore(45);
       // (60 + 45) / 2 = 52.5
       expect(player.getThreeDartAverage()).toBe(52.5);
-      
+
       player.addVisitScore(100);
       // (60 + 45 + 100) / 3 = 68.3333... rounded to 68.3
       expect(player.getThreeDartAverage()).toBe(68.3);
