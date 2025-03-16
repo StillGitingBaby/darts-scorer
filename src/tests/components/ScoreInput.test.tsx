@@ -143,4 +143,28 @@ describe('ScoreInput', () => {
 
     expect(onScoreSubmit).toHaveBeenCalledWith(180);
   });
+
+  it('should automatically focus on the input field after score submission', () => {
+    const onScoreSubmit = jest.fn();
+    render(<ScoreInput onScoreSubmit={onScoreSubmit} />);
+
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: SCORE_60 } });
+
+    // Submit the score
+    const submitButton = screen.getByRole('button', { name: SUBMIT });
+    fireEvent.click(submitButton);
+
+    // Check if the input has focus after submission
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('should automatically focus on the input field when autoFocus is true', () => {
+    const onScoreSubmit = jest.fn();
+    render(<ScoreInput onScoreSubmit={onScoreSubmit} autoFocus={true} />);
+
+    const input = screen.getByLabelText(ENTER_SCORE) as HTMLInputElement;
+    // Check if the input has focus when component mounts
+    expect(document.activeElement).toBe(input);
+  });
 });

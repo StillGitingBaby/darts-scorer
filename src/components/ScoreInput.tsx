@@ -1,16 +1,34 @@
 import confetti from 'canvas-confetti';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 interface ScoreInputProps {
   onScoreSubmit: (score: number) => void;
+  autoFocus?: boolean;
 }
 
 const IMPOSSIBLE_SCORES = [179, 178, 176, 175, 173, 172, 169, 166, 163];
 const MAX_POSSIBLE_SCORE = 180;
 
-const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
+const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = false }) => {
   const [score, setScore] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [shouldFocus, setShouldFocus] = useState(false);
+
+  // Effect to handle focusing the input
+  useEffect(() => {
+    if (shouldFocus && inputRef.current) {
+      inputRef.current.focus();
+      setShouldFocus(false);
+    }
+  }, [shouldFocus]);
+
+  // Effect to handle initial focus when component mounts
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [autoFocus]);
 
   const isValidScore = (score: number): boolean => {
     return !IMPOSSIBLE_SCORES.includes(score) && score <= MAX_POSSIBLE_SCORE;
@@ -50,6 +68,8 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
           }
           setScore('');
           setError('');
+          // Trigger focus after state updates
+          setShouldFocus(true);
         } else {
           setError(getErrorMessage(numericScore));
         }
@@ -78,6 +98,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit }) => {
             className="border rounded px-3 py-2 w-20 mr-2"
             min="0"
             max={MAX_POSSIBLE_SCORE}
+            ref={inputRef}
           />
           <button
             type="submit"
