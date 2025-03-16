@@ -45,6 +45,10 @@ const PlayerList: React.FC<PlayerListProps> = ({ players, currentPlayerIndex }) 
             </div>
             <div className="text-center">
               <span className="text-3xl font-bold">{player.score}</span>
+              <div className="mt-1 text-sm text-gray-600">
+                <span className="font-medium">Avg: </span>
+                <span>{player.getThreeDartAverage()}</span>
+              </div>
               {player.visitScores.length > 0 && (
                 <div className="mt-2">
                   <div className="text-sm text-gray-600">
