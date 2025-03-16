@@ -24,4 +24,14 @@ export class Player {
   addVisitScore(points: number): void {
     this.visitScores.push(points);
   }
+
+  // Calculate the 3-dart average score
+  getThreeDartAverage(): number {
+    if (this.visitScores.length === 0) {
+      return 0;
+    }
+    
+    const totalScore = this.visitScores.reduce((sum, score) => sum + score, 0);
+    return parseFloat((totalScore / this.visitScores.length).toFixed(1));
+  }
 }
