@@ -14,7 +14,9 @@ class MockSpeechRecognition implements EventTarget {
 
   addEventListener() {}
   removeEventListener() {}
-  dispatchEvent() { return true; }
+  dispatchEvent() {
+    return true;
+  }
 
   start() {}
   stop() {}
@@ -23,17 +25,19 @@ class MockSpeechRecognition implements EventTarget {
 
 export class VoiceRecognition {
   private recognition: any;
-  
+
   constructor() {
     // Use mock in test environment, real implementation in browser
     const isBrowser = typeof window !== 'undefined';
     if (isBrowser) {
       const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
-      this.recognition = SpeechRecognitionImpl ? new SpeechRecognitionImpl() : new MockSpeechRecognition();
+      this.recognition = SpeechRecognitionImpl
+        ? new SpeechRecognitionImpl()
+        : new MockSpeechRecognition();
     } else {
       this.recognition = new MockSpeechRecognition();
     }
-    
+
     this.recognition.continuous = false;
     this.recognition.interimResults = false;
   }
@@ -57,4 +61,4 @@ export class VoiceRecognition {
 export const isVoiceRecognitionSupported = (): boolean => {
   if (typeof window === 'undefined') return false;
   return 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
-}; 
+};

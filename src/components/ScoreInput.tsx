@@ -1,5 +1,6 @@
 import confetti from 'canvas-confetti';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+
 import { VoiceRecognition, isVoiceRecognitionSupported } from '../utils/voiceRecognition';
 
 interface ScoreInputProps {
