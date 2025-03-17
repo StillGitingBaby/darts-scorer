@@ -116,6 +116,15 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
     setIsListening(false);
   };
 
+  const toggleListening = useCallback(() => {
+    if (isListening) {
+      voiceRecognition.current?.stop();
+    } else {
+      voiceRecognition.current?.start(handleVoiceInput);
+    }
+    setIsListening(!isListening);
+  }, [isListening]);
+
   return (
     <div className="mt-6">
       <h2 className="text-xl font-semibold mb-2">Score Input</h2>
@@ -147,14 +156,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
           {voiceSupported && (
             <button
               type="button"
-              onClick={() => {
-                if (isListening) {
-                  voiceRecognition.current?.stop();
-                } else {
-                  voiceRecognition.current?.start(handleVoiceInput);
-                }
-                setIsListening(!isListening);
-              }}
+              onClick={toggleListening}
               className={`ml-2 p-2 rounded ${
                 isListening ? 'bg-red-600' : 'bg-gray-600'
               } text-white`}
