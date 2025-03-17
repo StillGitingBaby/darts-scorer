@@ -1,5 +1,6 @@
 import confetti from 'canvas-confetti';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { VoiceRecognition, isVoiceRecognitionSupported } from '../utils/voiceRecognition';
 
 interface ScoreInputProps {
   onScoreSubmit: (score: number) => void;
@@ -14,6 +15,21 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
   const [error, setError] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [shouldFocus, setShouldFocus] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const voiceRecognition = useRef<VoiceRecognition | null>(null);
+  const voiceSupported = isVoiceRecognitionSupported();
+
+  // Initialize voice recognition
+  useEffect(() => {
+    if (voiceSupported) {
+      voiceRecognition.current = new VoiceRecognition();
+    }
+    return () => {
+      if (voiceRecognition.current && isListening) {
+        voiceRecognition.current.stop();
+      }
+    };
+  }, [voiceSupported]);
 
   // Effect to handle focusing the input
   useEffect(() => {
@@ -78,6 +94,27 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
     [score, onScoreSubmit, isValidScore, getErrorMessage, setScore, setError, launchConfetti]
   );
 
+  const handleVoiceInput = (text: string) => {
+    // Try to extract a number from the spoken text
+    const number = parseInt(text.replace(/[^0-9]/g, ''));
+    if (!isNaN(number)) {
+      setScore(number.toString());
+      // Auto-submit if it's a valid score
+      if (isValidScore(number)) {
+        onScoreSubmit(number);
+        if (number === 180) {
+          launchConfetti();
+        }
+        setScore('');
+        setError('');
+        setShouldFocus(true);
+      } else {
+        setError(getErrorMessage(number));
+      }
+    }
+    setIsListening(false);
+  };
+
   return (
     <div className="mt-6">
       <h2 className="text-xl font-semibold mb-2">Score Input</h2>
@@ -106,11 +143,33 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
           >
             Submit
           </button>
+          {voiceSupported && (
+            <button
+              type="button"
+              onClick={() => {
+                if (isListening) {
+                  voiceRecognition.current?.stop();
+                } else {
+                  voiceRecognition.current?.start(handleVoiceInput);
+                }
+                setIsListening(!isListening);
+              }}
+              className={`ml-2 p-2 rounded ${
+                isListening ? 'bg-red-600' : 'bg-gray-600'
+              } text-white`}
+              aria-label={isListening ? 'Stop listening' : 'Start voice input'}
+            >
+              🎤
+            </button>
+          )}
         </div>
         {error && (
           <div className="text-red-600 mt-2" role="alert">
             {error}
           </div>
+        )}
+        {isListening && (
+          <div className="text-green-600 mt-2">Listening... Speak your score now.</div>
         )}
       </form>
     </div>
