@@ -45,8 +45,8 @@ export class VoiceRecognition {
   start(onResult: (text: string) => void) {
     this.recognition.onresult = (event: any) => {
       // In a real browser, event.results[0][0].transcript would contain the recognized text
-      // In test environment, we'll just pass a mock value
-      const text = event?.results?.[0]?.[0]?.transcript || 'mock text';
+      // In test environment, we'll just pass a mock value with the required "count" prefix
+      const text = event?.results?.[0]?.[0]?.transcript || 'count 40';
       onResult(text);
     };
     this.recognition.start();
