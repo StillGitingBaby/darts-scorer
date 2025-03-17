@@ -14,7 +14,6 @@ const MAX_POSSIBLE_SCORE = 180;
 const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = false }) => {
   const [score, setScore] = useState<string>('');
   const [error, setError] = useState<string>('');
-  const [lastHeardText, setLastHeardText] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [shouldFocus, setShouldFocus] = useState(false);
   const [isListening, setIsListening] = useState(false);
