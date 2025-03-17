@@ -98,18 +98,18 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
 
   const handleVoiceInput = (text: string) => {
     setLastHeardText(text);
-    
+
     // Convert to lowercase for case-insensitive matching
     const lowerText = text.toLowerCase();
-    
+
     // Check if the text starts with "count"
     if (lowerText.includes('count')) {
       // Extract the number that follows "count"
       const match = lowerText.match(/count\s+(\d+)/i);
-      
+
       if (match && match[1]) {
         const number = parseInt(match[1]);
-        
+
         if (!isNaN(number)) {
           setScore(number.toString());
           // Auto-submit if it's a valid score
@@ -131,7 +131,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
     } else {
       setError("Please start with 'count' followed by your score");
     }
-    
+
     setIsListening(false);
   };
 
@@ -191,7 +191,9 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
           </div>
         )}
         {isListening && (
-          <div className="text-green-600 mt-2">Listening... Say "count" followed by your score (e.g., "count 40").</div>
+          <div className="text-green-600 mt-2">
+            Listening... Say "count" followed by your score (e.g., "count 40").
+          </div>
         )}
       </form>
     </div>
