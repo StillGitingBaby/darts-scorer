@@ -14,6 +14,7 @@ const MAX_POSSIBLE_SCORE = 180;
 const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = false }) => {
   const [score, setScore] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [lastHeardText, setLastHeardText] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [shouldFocus, setShouldFocus] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -97,42 +98,60 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
 
   const handleVoiceInput = (text: string) => {
     setLastHeardText(text);
+    setIsListening(false);
 
-    // Convert to lowercase for case-insensitive matching
-    const lowerText = text.toLowerCase();
+    // Process the voice input
+    processVoiceInput(text);
+  };
 
-    // Check if the text starts with "count"
-    if (lowerText.includes('count')) {
+  // Helper function to process voice input and extract scores
+  const processVoiceInput = useCallback(
+    (text: string) => {
+      // Convert to lowercase for case-insensitive matching
+      const lowerText = text.toLowerCase();
+
+      // Check if the text includes "count"
+      if (!lowerText.includes('count')) {
+        setError("Please start with 'count' followed by your score");
+        return;
+      }
+
       // Extract the number that follows "count"
       const match = lowerText.match(/count\s+(\d+)/i);
-
-      if (match && match[1]) {
-        const number = parseInt(match[1]);
-
-        if (!isNaN(number)) {
-          setScore(number.toString());
-          // Auto-submit if it's a valid score
-          if (isValidScore(number)) {
-            onScoreSubmit(number);
-            if (number === 180) {
-              launchConfetti();
-            }
-            setScore('');
-            setError('');
-            setShouldFocus(true);
-          } else {
-            setError(getErrorMessage(number));
-          }
-        }
-      } else {
+      if (!match || !match[1]) {
         setError("Please say 'count' followed by a number");
+        return;
       }
-    } else {
-      setError("Please start with 'count' followed by your score");
-    }
 
-    setIsListening(false);
-  };
+      // Parse the number
+      const number = parseInt(match[1]);
+      if (isNaN(number)) {
+        setError('Could not understand the number');
+        return;
+      }
+
+      // Set the score and validate
+      setScore(number.toString());
+
+      // Check if it's a valid score
+      if (!isValidScore(number)) {
+        setError(getErrorMessage(number));
+        return;
+      }
+
+      // Submit the valid score
+      onScoreSubmit(number);
+      if (number === 180) {
+        launchConfetti();
+      }
+
+      // Reset the input
+      setScore('');
+      setError('');
+      setShouldFocus(true);
+    },
+    [onScoreSubmit, isValidScore, getErrorMessage, launchConfetti]
+  );
 
   const toggleListening = useCallback(() => {
     if (isListening) {
@@ -192,6 +211,11 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
         {isListening && (
           <div className="text-green-600 mt-2">
             Listening... Say "count" followed by your score (e.g., "count 40").
+          </div>
+        )}
+        {lastHeardText && !isListening && (
+          <div className="text-gray-600 mt-2">
+            <span className="font-semibold">Last heard:</span> "{lastHeardText}"
           </div>
         )}
       </form>
