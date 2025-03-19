@@ -1,6 +1,8 @@
 import confetti from 'canvas-confetti';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 
+import { VoiceRecognition, isVoiceRecognitionSupported } from '../utils/voiceRecognition';
+
 interface ScoreInputProps {
   onScoreSubmit: (score: number) => void;
   autoFocus?: boolean;
@@ -12,8 +14,24 @@ const MAX_POSSIBLE_SCORE = 180;
 const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = false }) => {
   const [score, setScore] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [lastHeardText, setLastHeardText] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [shouldFocus, setShouldFocus] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const voiceRecognition = useRef<VoiceRecognition | null>(null);
+  const voiceSupported = isVoiceRecognitionSupported();
+
+  // Initialize voice recognition
+  useEffect(() => {
+    if (voiceSupported) {
+      voiceRecognition.current = new VoiceRecognition();
+    }
+    return () => {
+      if (voiceRecognition.current && isListening) {
+        voiceRecognition.current.stop();
+      }
+    };
+  }, [voiceSupported]);
 
   // Effect to handle focusing the input
   useEffect(() => {
@@ -78,6 +96,72 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
     [score, onScoreSubmit, isValidScore, getErrorMessage, setScore, setError, launchConfetti]
   );
 
+  const handleVoiceInput = (text: string) => {
+    setLastHeardText(text);
+    setIsListening(false);
+
+    // Process the voice input
+    processVoiceInput(text);
+  };
+
+  // Helper function to process voice input and extract scores
+  const processVoiceInput = useCallback(
+    (text: string) => {
+      // Convert to lowercase for case-insensitive matching
+      const lowerText = text.toLowerCase();
+
+      // Check if the text includes "count"
+      if (!lowerText.includes('count')) {
+        setError("Please start with 'count' followed by your score");
+        return;
+      }
+
+      // Extract the number that follows "count"
+      const match = lowerText.match(/count\s+(\d+)/i);
+      if (!match || !match[1]) {
+        setError("Please say 'count' followed by a number");
+        return;
+      }
+
+      // Parse the number
+      const number = parseInt(match[1]);
+      if (isNaN(number)) {
+        setError('Could not understand the number');
+        return;
+      }
+
+      // Set the score and validate
+      setScore(number.toString());
+
+      // Check if it's a valid score
+      if (!isValidScore(number)) {
+        setError(getErrorMessage(number));
+        return;
+      }
+
+      // Submit the valid score
+      onScoreSubmit(number);
+      if (number === 180) {
+        launchConfetti();
+      }
+
+      // Reset the input
+      setScore('');
+      setError('');
+      setShouldFocus(true);
+    },
+    [onScoreSubmit, isValidScore, getErrorMessage, launchConfetti]
+  );
+
+  const toggleListening = useCallback(() => {
+    if (isListening) {
+      voiceRecognition.current?.stop();
+    } else {
+      voiceRecognition.current?.start(handleVoiceInput);
+    }
+    setIsListening(!isListening);
+  }, [isListening]);
+
   return (
     <div className="mt-6">
       <h2 className="text-xl font-semibold mb-2">Score Input</h2>
@@ -106,10 +190,32 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
           >
             Submit
           </button>
+          {voiceSupported && (
+            <button
+              type="button"
+              onClick={toggleListening}
+              className={`ml-2 p-2 rounded ${
+                isListening ? 'bg-red-600' : 'bg-gray-600'
+              } text-white`}
+              aria-label={isListening ? 'Stop listening' : 'Start voice input'}
+            >
+              🎤
+            </button>
+          )}
         </div>
         {error && (
           <div className="text-red-600 mt-2" role="alert">
             {error}
+          </div>
+        )}
+        {isListening && (
+          <div className="text-green-600 mt-2">
+            Listening... Say "count" followed by your score (e.g., "count 40").
+          </div>
+        )}
+        {lastHeardText && !isListening && (
+          <div className="text-gray-600 mt-2">
+            <span className="font-semibold">Last heard:</span> "{lastHeardText}"
           </div>
         )}
       </form>

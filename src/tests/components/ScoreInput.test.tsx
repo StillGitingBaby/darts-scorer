@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import * as rtl from '@testing-library/react';
 import React from 'react';
 
 import ScoreInput from '../../components/ScoreInput';
@@ -8,6 +9,10 @@ const ENTER_SCORE = 'Enter Score:';
 const SUBMIT = 'Submit';
 const SCORE_60 = '60';
 const MAX_SCORE = '180';
+
+// Alias the imported utilities
+const screen = rtl.screen;
+const fireEvent = rtl.fireEvent;
 
 describe('ScoreInput', () => {
   it('should render the score input form', () => {
