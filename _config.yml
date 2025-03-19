@@ -1,0 +1,5 @@
+theme: jekyll-theme-minimal
+title: Darts Scorer
+description: A darts scoring application
+baseurl: /darts-scorer
+include: [dist] 
