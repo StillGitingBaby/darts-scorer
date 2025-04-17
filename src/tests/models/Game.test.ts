@@ -86,10 +86,10 @@ describe('Game', () => {
       game.players[0].score = 60;
       game.recordScore(60);
       expect(game.isGameOver).toBe(true);
-      
+
       // Try to record another score
       game.recordScore(40);
-      
+
       // Nothing should change
       expect(game.players[0].score).toBe(0);
       expect(game.isGameOver).toBe(true);
@@ -125,14 +125,14 @@ describe('Game', () => {
     it('should do nothing if there is no move history', () => {
       // Game starts with no moves
       expect(game.scoreHistory.length).toBe(0);
-      
+
       // Current state
       const initialPlayerIndex = game.currentPlayerIndex;
       const initialScore = game.players[0].score;
-      
+
       // Try to undo
       game.undoLastMove();
-      
+
       // Nothing should change
       expect(game.currentPlayerIndex).toBe(initialPlayerIndex);
       expect(game.players[0].score).toBe(initialScore);
@@ -144,15 +144,15 @@ describe('Game', () => {
       game.scoreHistory.push({
         playerIndex: 0,
         score: 40,
-        previousScore: 501
+        previousScore: 501,
       });
       game.players[0].score = 461; // Manually update score
-      
+
       // Player has no visit scores yet
       expect(game.players[0].visitScores.length).toBe(0);
-      
+
       game.undoLastMove();
-      
+
       // Should still restore the previous score
       expect(game.players[0].score).toBe(501);
       expect(game.scoreHistory.length).toBe(0);
@@ -181,9 +181,9 @@ describe('Game', () => {
       game.recordScore(60);
       expect(game.isGameOver).toBe(true);
       expect(game.winner).toBe(game.players[0]);
-      
+
       game.reset();
-      
+
       expect(game.isGameOver).toBe(false);
       expect(game.winner).toBeNull();
       expect(game.players[0].score).toBe(501);
@@ -262,9 +262,9 @@ describe('Game', () => {
     it('should handle cloning a game with no winner correctly', () => {
       // Game has no winner yet
       expect(game.winner).toBeNull();
-      
+
       const clonedGame = game.clone();
-      
+
       // Clone should also have no winner
       expect(clonedGame.winner).toBeNull();
     });
@@ -273,10 +273,10 @@ describe('Game', () => {
       // Create a game with no players
       const emptyGame = new Game(GameType.X01, 501);
       expect(emptyGame.players.length).toBe(0);
-      
+
       // Clone the empty game
       const clonedGame = emptyGame.clone();
-      
+
       // Verify the clone also has no players
       expect(clonedGame.players.length).toBe(0);
     });
@@ -285,10 +285,10 @@ describe('Game', () => {
   describe('currentPlayer getter', () => {
     it('should return the current player based on the index', () => {
       expect(game.currentPlayer).toBe(game.players[0]);
-      
+
       game.nextTurn();
       expect(game.currentPlayer).toBe(game.players[1]);
-      
+
       game.nextTurn();
       expect(game.currentPlayer).toBe(game.players[0]);
     });

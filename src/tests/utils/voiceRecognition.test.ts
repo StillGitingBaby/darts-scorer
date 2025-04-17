@@ -30,83 +30,83 @@ class MockSpeechRecognition {
 
 describe('VoiceRecognition', () => {
   let originalWindow: any;
-  
+
   beforeEach(() => {
     originalWindow = { ...global.window };
-    
+
     // Reset all mock functions
     jest.clearAllMocks();
   });
-  
+
   afterEach(() => {
     // Restore original window
     global.window = originalWindow;
   });
-  
+
   describe('constructor', () => {
     it('should use SpeechRecognition if available', () => {
       // Mock window.SpeechRecognition
       global.window.SpeechRecognition = MockSpeechRecognition as any;
       global.window.webkitSpeechRecognition = undefined as any;
-      
+
       const voiceRecognition = new VoiceRecognition();
-      
+
       expect(voiceRecognition['recognition']).toBeInstanceOf(MockSpeechRecognition);
       expect(voiceRecognition['recognition'].continuous).toBe(false);
       expect(voiceRecognition['recognition'].interimResults).toBe(false);
     });
-    
+
     it('should use webkitSpeechRecognition if SpeechRecognition is not available', () => {
       // Mock window.webkitSpeechRecognition
       global.window.SpeechRecognition = undefined as any;
       global.window.webkitSpeechRecognition = MockSpeechRecognition as any;
-      
+
       const voiceRecognition = new VoiceRecognition();
-      
+
       expect(voiceRecognition['recognition']).toBeInstanceOf(MockSpeechRecognition);
     });
-    
+
     it('should use MockSpeechRecognition if neither SpeechRecognition nor webkitSpeechRecognition are available', () => {
       // Remove both SpeechRecognition implementations
       global.window.SpeechRecognition = undefined as any;
       global.window.webkitSpeechRecognition = undefined as any;
-      
+
       const voiceRecognition = new VoiceRecognition();
-      
+
       // It should use the mock implementation when no browser implementation is available
       expect(voiceRecognition['recognition']).toBeDefined();
       expect(voiceRecognition['recognition'].continuous).toBe(false);
       expect(voiceRecognition['recognition'].interimResults).toBe(false);
     });
-    
+
     it('should use MockSpeechRecognition in non-browser environments', () => {
       // Simulate a non-browser environment
       const originalWindow = global.window;
       global.window = undefined as any;
-      
+
       const voiceRecognition = new VoiceRecognition();
-      
+
       // It should use the mock implementation
       expect(voiceRecognition['recognition']).toBeDefined();
       expect(voiceRecognition['recognition'].continuous).toBe(false);
       expect(voiceRecognition['recognition'].interimResults).toBe(false);
-      
+
       // Restore window
       global.window = originalWindow;
     });
   });
-  
+
   describe('start method', () => {
     it('should set onresult callback and start recognition', () => {
       // Mock SpeechRecognition
       global.window.SpeechRecognition = MockSpeechRecognition as any;
-      
+
       const onResultMock = jest.fn();
       const voiceRecognition = new VoiceRecognition();
       voiceRecognition.start(onResultMock);
-      
+
       expect(mockStart).toHaveBeenCalled();
-      
+
       // Simulate recognition result
       const mockEvent = {
         results: [
@@ -117,67 +117,67 @@ describe('VoiceRecognition', () => {
           ],
         ],
       };
-      
+
       // Call the onresult handler
       if (voiceRecognition['recognition'].onresult) {
         voiceRecognition['recognition'].onresult(mockEvent);
       }
-      
+
       expect(onResultMock).toHaveBeenCalledWith('count 50');
     });
-    
+
     it('should handle missing event data gracefully', () => {
       // Mock SpeechRecognition
       global.window.SpeechRecognition = MockSpeechRecognition as any;
-      
+
       const onResultMock = jest.fn();
       const voiceRecognition = new VoiceRecognition();
       voiceRecognition.start(onResultMock);
-      
+
       // Call the onresult handler with invalid data
       if (voiceRecognition['recognition'].onresult) {
         voiceRecognition['recognition'].onresult(null);
       }
-      
+
       // Should use the default value when event data is missing
       expect(onResultMock).toHaveBeenCalledWith('count 40');
     });
-    
+
     it('should handle partial event data', () => {
       // Mock SpeechRecognition
       global.window.SpeechRecognition = MockSpeechRecognition as any;
-      
+
       const onResultMock = jest.fn();
       const voiceRecognition = new VoiceRecognition();
       voiceRecognition.start(onResultMock);
-      
+
       // Call the onresult handler with partial data
       const partialEvent = { results: [[]] };
       if (voiceRecognition['recognition'].onresult) {
         voiceRecognition['recognition'].onresult(partialEvent);
       }
-      
+
       // Should use the default value when transcript is missing
       expect(onResultMock).toHaveBeenCalledWith('count 40');
     });
   });
-  
+
   describe('stop method', () => {
     it('should call stop on the recognition object', () => {
       // Mock SpeechRecognition
       global.window.SpeechRecognition = MockSpeechRecognition as any;
-      
+
       const voiceRecognition = new VoiceRecognition();
       voiceRecognition.stop();
-      
+
       expect(mockStop).toHaveBeenCalled();
     });
   });
-  
+
   describe('MockSpeechRecognition class', () => {
     it('should have the expected interface', () => {
       const mock = new MockSpeechRecognition();
-      
+
       expect(mock.continuous).toBe(false);
       expect(mock.interimResults).toBe(false);
       expect(mock.lang).toBe('en-US');
@@ -186,64 +186,64 @@ describe('VoiceRecognition', () => {
       expect(mock.onstart).toBeNull();
       expect(mock.onend).toBeNull();
       expect(mock.onerror).toBeNull();
-      
+
       // Test methods
       mock.addEventListener();
       expect(mockAddEventListener).toHaveBeenCalled();
-      
+
       mock.removeEventListener();
       expect(mockRemoveEventListener).toHaveBeenCalled();
-      
+
       const result = mock.dispatchEvent();
       expect(mockDispatchEvent).toHaveBeenCalled();
       expect(result).toBe(true);
-      
+
       mock.start();
       expect(mockStart).toHaveBeenCalled();
-      
+
       mock.stop();
       expect(mockStop).toHaveBeenCalled();
-      
+
       mock.abort();
       expect(mockAbort).toHaveBeenCalled();
     });
   });
-  
+
   describe('isVoiceRecognitionSupported', () => {
     it('should return true when SpeechRecognition is supported', () => {
       global.window.SpeechRecognition = MockSpeechRecognition as any;
       global.window.webkitSpeechRecognition = undefined as any;
-      
+
       expect(isVoiceRecognitionSupported()).toBe(true);
     });
-    
+
     it('should return true when webkitSpeechRecognition is supported', () => {
       global.window.SpeechRecognition = undefined as any;
       global.window.webkitSpeechRecognition = MockSpeechRecognition as any;
-      
+
       expect(isVoiceRecognitionSupported()).toBe(true);
     });
-    
+
     it('should return true when either SpeechRecognition feature is available', () => {
       // In Jest environment, even when we set these to undefined,
       // the function still returns true because of how the testing environment
       // is set up. Let's acknowledge this behavior rather than fighting it.
       global.window.SpeechRecognition = undefined as any;
       global.window.webkitSpeechRecognition = undefined as any;
-      
+
       expect(isVoiceRecognitionSupported()).toBe(true);
     });
-    
+
     it('should return true in the Jest test environment', () => {
       // In Jest environment, the function returns true because of how
       // the testing environment simulates browser APIs
       const originalWindow = global.window;
       global.window = undefined as any;
-      
+
       expect(isVoiceRecognitionSupported()).toBe(true);
-      
+
       // Restore window
       global.window = originalWindow;
     });
   });
-}); 
+});
