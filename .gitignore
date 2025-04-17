@@ -10,6 +10,9 @@ node_modules/
 /build
 /dist
 
+# Firebase
+/.firebase/
+
 # Misc
 .DS_Store
 .env.local
