@@ -160,6 +160,69 @@ describe('VoiceRecognition', () => {
       // Should use the default value when transcript is missing
       expect(onResultMock).toHaveBeenCalledWith('count 40');
     });
+
+    it('should set up onend callback when continuous mode is enabled', () => {
+      // Mock SpeechRecognition
+      global.window.SpeechRecognition = MockSpeechRecognition as any;
+
+      const onResultMock = jest.fn();
+      const voiceRecognition = new VoiceRecognition();
+
+      // Start in continuous mode
+      voiceRecognition.start(onResultMock, true);
+
+      expect(voiceRecognition['continuousMode']).toBe(true);
+      expect(voiceRecognition['recognition'].onend).toBeDefined();
+
+      // Simulate recognition end event
+      if (voiceRecognition['recognition'].onend) {
+        voiceRecognition['recognition'].onend({});
+      }
+
+      // Should restart recognition
+      expect(mockStart).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not restart recognition after onend when continuous mode is disabled', () => {
+      // Mock SpeechRecognition
+      global.window.SpeechRecognition = MockSpeechRecognition as any;
+
+      const onResultMock = jest.fn();
+      const voiceRecognition = new VoiceRecognition();
+
+      // Start in non-continuous mode
+      voiceRecognition.start(onResultMock, false);
+
+      expect(voiceRecognition['continuousMode']).toBe(false);
+
+      // onend should still be defined because we always set it now
+      expect(voiceRecognition['recognition'].onend).not.toBeNull();
+
+      // Only one call to start
+      expect(mockStart).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not restart recognition if continuousMode is set to false during listening', () => {
+      // Mock SpeechRecognition
+      global.window.SpeechRecognition = MockSpeechRecognition as any;
+
+      const onResultMock = jest.fn();
+      const voiceRecognition = new VoiceRecognition();
+
+      // Start in continuous mode
+      voiceRecognition.start(onResultMock, true);
+
+      // Set continuousMode to false internally
+      voiceRecognition['continuousMode'] = false;
+
+      // Simulate recognition end event
+      if (voiceRecognition['recognition'].onend) {
+        voiceRecognition['recognition'].onend({});
+      }
+
+      // Should not restart recognition
+      expect(mockStart).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('stop method', () => {
@@ -170,6 +233,27 @@ describe('VoiceRecognition', () => {
       const voiceRecognition = new VoiceRecognition();
       voiceRecognition.stop();
 
+      expect(mockStop).toHaveBeenCalled();
+    });
+
+    it('should set continuousMode to false when stopping', () => {
+      // Mock SpeechRecognition
+      global.window.SpeechRecognition = MockSpeechRecognition as any;
+
+      const onResultMock = jest.fn();
+      const voiceRecognition = new VoiceRecognition();
+
+      // Start in continuous mode
+      voiceRecognition.start(onResultMock, true);
+
+      // Verify continuousMode is true
+      expect(voiceRecognition['continuousMode']).toBe(true);
+
+      // Stop recognition
+      voiceRecognition.stop();
+
+      // Verify continuousMode is now false
+      expect(voiceRecognition['continuousMode']).toBe(false);
       expect(mockStop).toHaveBeenCalled();
     });
   });

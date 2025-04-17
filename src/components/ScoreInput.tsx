@@ -98,8 +98,6 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
 
   const handleVoiceInput = (text: string) => {
     setLastHeardText(text);
-    setIsListening(false);
-
     // Process the voice input
     processVoiceInput(text);
   };
@@ -166,53 +164,61 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
   const toggleListening = useCallback(() => {
     if (isListening) {
       voiceRecognition.current?.stop();
+      setIsListening(false);
     } else {
       voiceRecognition.current?.start(handleVoiceInput);
+      setIsListening(true);
     }
-    setIsListening(!isListening);
-  }, [isListening]);
+  }, [isListening, handleVoiceInput]);
 
   return (
     <div className="mt-6">
       <h2 className="text-xl font-semibold mb-2">Score Input</h2>
 
       <form onSubmit={handleSubmit} className="mb-4">
-        <div className="flex items-center">
-          <label htmlFor="score-input" className="mr-2 font-medium">
-            Enter Score:
-          </label>
-          <input
-            id="score-input"
-            type="number"
-            value={score}
-            onChange={useCallback(
-              (e: React.ChangeEvent<HTMLInputElement>) => setScore(e.target.value),
-              [setScore]
-            )}
-            className="border rounded px-3 py-2 w-20 mr-2"
-            min="0"
-            max={MAX_POSSIBLE_SCORE}
-            ref={inputRef}
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Submit
-          </button>
-          {voiceSupported && (
+        <div className="flex flex-col sm:flex-row">
+          <div className="flex items-center mb-2 sm:mb-0">
+            <label htmlFor="score-input" className="mr-2 font-medium">
+              Enter Score:
+            </label>
+            <input
+              id="score-input"
+              type="number"
+              value={score}
+              onChange={useCallback(
+                (e: React.ChangeEvent<HTMLInputElement>) => setScore(e.target.value),
+                [setScore]
+              )}
+              className="border rounded px-3 py-2 w-20 mr-2"
+              min="0"
+              max={MAX_POSSIBLE_SCORE}
+              ref={inputRef}
+            />
             <button
-              type="button"
-              onClick={toggleListening}
-              className={`ml-2 p-2 rounded ${
-                isListening ? 'bg-red-600' : 'bg-gray-600'
-              } text-white`}
-              aria-label={isListening ? 'Stop listening' : 'Start voice input'}
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              🎤
+              Submit
             </button>
+          </div>
+
+          {voiceSupported && (
+            <div className="flex items-center sm:ml-4">
+              <button
+                type="button"
+                onClick={toggleListening}
+                className={`flex items-center px-3 py-2 rounded ${
+                  isListening ? 'bg-red-600' : 'bg-blue-600'
+                } text-white`}
+                aria-label={isListening ? 'Stop listening' : 'Start voice input'}
+              >
+                <span className="mr-2">🎤</span>
+                {isListening ? 'Stop Voice' : 'Voice Input'}
+              </button>
+            </div>
           )}
         </div>
+
         {error && (
           <div className="text-red-600 mt-2" role="alert">
             {error}

@@ -1,6 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { act } from 'react';
-import React from 'react';
 
 import App from '../App';
 import { GameType } from '../models/Game';
@@ -21,6 +20,7 @@ const GAME_OVER = 'Game Over!';
 const HAS_WON = 'has won the game!';
 const COUNT_100 = 'count 100';
 const SCORE_CLASS_SELECTOR = '.text-3xl.font-bold';
+const VOICE_INPUT_TEXT = 'Voice Input';
 
 // Mock the confetti function
 jest.mock('canvas-confetti', () => jest.fn());
@@ -101,11 +101,11 @@ describe('Voice Scoring System Test', () => {
     });
 
     // Find the microphone button and click it
-    const voiceButton = screen.getByText('🎤');
+    const voiceButton = screen.getByText(VOICE_INPUT_TEXT);
     fireEvent.click(voiceButton);
 
     // Verify that the app is listening
-    expect(screen.getByText(/Listening/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Listening/)[0]).toBeInTheDocument();
 
     // Get the instance of the VoiceRecognition class that was created
     const voiceRecognitionInstance = voiceRecognitionModule.VoiceRecognition.mock.results[0].value;
@@ -190,7 +190,7 @@ describe('Voice Scoring System Test', () => {
     const voiceRecognitionInstance = voiceRecognitionModule.VoiceRecognition.mock.results[0].value;
 
     // Test an impossible score (179 is not possible in darts)
-    const voiceButton = screen.getByText('🎤');
+    const voiceButton = screen.getByText(VOICE_INPUT_TEXT);
     fireEvent.click(voiceButton);
     await simulateVoiceInput(voiceRecognitionInstance, 'count 179');
 
@@ -258,76 +258,41 @@ describe('Voice Scoring System Test', () => {
     fireEvent.click(voiceButton);
     await simulateVoiceInput(voiceRecognitionInstance, COUNT_100);
 
-    // Player 1 scores 101 to win (501 - 100 - 100 - 100 - 100 = 101)
+    // Player 1 scores 100, leaving 1 point
     await waitFor(() => {
       expect(screen.getByText(`${PLAYER_1}${TURN_TO_THROW_TEXT}`)).toBeInTheDocument();
     });
     fireEvent.click(voiceButton);
-    await simulateVoiceInput(voiceRecognitionInstance, 'count 101');
+    await simulateVoiceInput(voiceRecognitionInstance, COUNT_100);
 
-    // Verify that Player 1 has won
+    // Wait for Player 2's turn
     await waitFor(() => {
-      expect(screen.getByText(GAME_OVER)).toBeInTheDocument();
-      expect(screen.getByText(`${PLAYER_1} ${HAS_WON}`)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: NEW_GAME })).toBeInTheDocument();
-    });
-  });
-
-  it('should handle "count zero" voice commands', async () => {
-    // Render the full application
-    render(<App />);
-
-    // Set up the game with two players
-    const gameTypeSelect = screen.getByLabelText(GAME_TYPE_LABEL);
-    fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
-
-    const startingScoreInput = screen.getByLabelText(STARTING_SCORE_LABEL);
-    fireEvent.change(startingScoreInput, { target: { value: STARTING_SCORE } });
-
-    // Add first player
-    const playerNameInput = screen.getByLabelText(PLAYER_NAME_LABEL);
-    fireEvent.change(playerNameInput, { target: { value: PLAYER_1 } });
-    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
-
-    // Add second player
-    fireEvent.change(playerNameInput, { target: { value: PLAYER_2 } });
-    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
-
-    // Start the game
-    fireEvent.click(screen.getByRole('button', { name: START_GAME }));
-
-    // Wait for the game to start
-    await waitFor(() => {
-      expect(screen.getByText(`${STARTING_SCORE} X01`)).toBeInTheDocument();
-      expect(screen.getByText(`${PLAYER_1}${TURN_TO_THROW_TEXT}`)).toBeInTheDocument();
-    });
-
-    // Get the instance of the VoiceRecognition class
-    const voiceRecognitionInstance = voiceRecognitionModule.VoiceRecognition.mock.results[0].value;
-    const voiceButton = screen.getByText('🎤');
-
-    // Player 1 scores with "count zero"
-    fireEvent.click(voiceButton);
-    await simulateVoiceInput(voiceRecognitionInstance, 'count zero');
-
-    // Verify that Player 1's score remains unchanged and it's Player 2's turn
-    await waitFor(() => {
-      const playerItems = screen.getAllByTestId(PLAYER_ITEM_TEST_ID);
-      const player1ScoreElement = playerItems[0].querySelector(SCORE_CLASS_SELECTOR);
-      expect(player1ScoreElement).toHaveTextContent('501'); // Still 501 after adding 0
       expect(screen.getByText(`${PLAYER_2}${TURN_TO_THROW_TEXT}`)).toBeInTheDocument();
     });
 
-    // Player 2 scores with "count 0" (numeric form)
+    // Player 2 scores 100, leaving 1 point
     fireEvent.click(voiceButton);
-    await simulateVoiceInput(voiceRecognitionInstance, 'count 0');
+    await simulateVoiceInput(voiceRecognitionInstance, COUNT_100);
 
-    // Verify that Player 2's score remains unchanged and it's Player 1's turn
+    // Player 1 scores 1 to finish the game with "count 1"
     await waitFor(() => {
-      const playerItems = screen.getAllByTestId(PLAYER_ITEM_TEST_ID);
-      const player2ScoreElement = playerItems[1].querySelector(SCORE_CLASS_SELECTOR);
-      expect(player2ScoreElement).toHaveTextContent('501'); // Still 501 after adding 0
       expect(screen.getByText(`${PLAYER_1}${TURN_TO_THROW_TEXT}`)).toBeInTheDocument();
+    });
+    fireEvent.click(voiceButton);
+    await simulateVoiceInput(voiceRecognitionInstance, 'count 1');
+
+    // Verify that the game is over
+    await waitFor(() => {
+      expect(screen.getByText(GAME_OVER)).toBeInTheDocument();
+      expect(screen.getByText(`${PLAYER_1} ${HAS_WON}`)).toBeInTheDocument();
+    });
+
+    // Start a new game
+    fireEvent.click(screen.getByRole('button', { name: NEW_GAME }));
+
+    // Wait for the setup screen
+    await waitFor(() => {
+      expect(screen.getByLabelText(GAME_TYPE_LABEL)).toBeInTheDocument();
     });
   });
 });

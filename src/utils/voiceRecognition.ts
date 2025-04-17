@@ -25,6 +25,8 @@ class MockSpeechRecognition implements EventTarget {
 
 export class VoiceRecognition {
   private recognition: any;
+  private onResultCallback: ((text: string) => void) | null = null;
+  private continuousMode: boolean = true;
 
   constructor() {
     // Use mock in test environment, real implementation in browser
@@ -42,17 +44,32 @@ export class VoiceRecognition {
     this.recognition.interimResults = false;
   }
 
-  start(onResult: (text: string) => void) {
+  start(onResult: (text: string) => void, continuous: boolean = true) {
+    this.onResultCallback = onResult;
+    this.continuousMode = continuous;
+
     this.recognition.onresult = (event: any) => {
       // In a real browser, event.results[0][0].transcript would contain the recognized text
       // In test environment, we'll just pass a mock value with the required "count" prefix
       const text = event?.results?.[0]?.[0]?.transcript || 'count 40';
-      onResult(text);
+      if (this.onResultCallback) {
+        this.onResultCallback(text);
+      }
     };
+
+    // Setup the onend event to restart if in continuous mode
+    this.recognition.onend = () => {
+      // Restart recognition when it ends if still in continuous mode
+      if (this.continuousMode) {
+        this.recognition.start();
+      }
+    };
+
     this.recognition.start();
   }
 
   stop() {
+    this.continuousMode = false;
     this.recognition.stop();
   }
 }
