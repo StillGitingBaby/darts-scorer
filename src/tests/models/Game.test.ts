@@ -80,6 +80,22 @@ describe('Game', () => {
       expect(game.winner).toBe(game.players[0]);
       expect(game.currentPlayerIndex).toBe(0);
     });
+
+    it('should do nothing if the game is already over', () => {
+      // First end the game
+      game.players[0].score = 60;
+      game.recordScore(60);
+      expect(game.isGameOver).toBe(true);
+      
+      // Try to record another score
+      game.recordScore(40);
+      
+      // Nothing should change
+      expect(game.players[0].score).toBe(0);
+      expect(game.isGameOver).toBe(true);
+      expect(game.currentPlayerIndex).toBe(0);
+      expect(game.scoreHistory.length).toBe(1); // Only the winning score should be recorded
+    });
   });
 
   describe('undoLastMove', () => {
@@ -105,6 +121,42 @@ describe('Game', () => {
       expect(game.winner).toBeNull();
       expect(game.players[0].score).toBe(60);
     });
+
+    it('should do nothing if there is no move history', () => {
+      // Game starts with no moves
+      expect(game.scoreHistory.length).toBe(0);
+      
+      // Current state
+      const initialPlayerIndex = game.currentPlayerIndex;
+      const initialScore = game.players[0].score;
+      
+      // Try to undo
+      game.undoLastMove();
+      
+      // Nothing should change
+      expect(game.currentPlayerIndex).toBe(initialPlayerIndex);
+      expect(game.players[0].score).toBe(initialScore);
+      expect(game.scoreHistory.length).toBe(0);
+    });
+
+    it('should handle case where the player has no visit scores', () => {
+      // Add a score entry to history without adding to visitScores
+      game.scoreHistory.push({
+        playerIndex: 0,
+        score: 40,
+        previousScore: 501
+      });
+      game.players[0].score = 461; // Manually update score
+      
+      // Player has no visit scores yet
+      expect(game.players[0].visitScores.length).toBe(0);
+      
+      game.undoLastMove();
+      
+      // Should still restore the previous score
+      expect(game.players[0].score).toBe(501);
+      expect(game.scoreHistory.length).toBe(0);
+    });
   });
 
   describe('reset', () => {
@@ -121,6 +173,20 @@ describe('Game', () => {
       expect(game.players[1].score).toBe(501);
       expect(game.players[0].visitScores).toEqual([]);
       expect(game.players[1].visitScores).toEqual([]);
+    });
+
+    it('should reset even if game was over', () => {
+      // End the game
+      game.players[0].score = 60;
+      game.recordScore(60);
+      expect(game.isGameOver).toBe(true);
+      expect(game.winner).toBe(game.players[0]);
+      
+      game.reset();
+      
+      expect(game.isGameOver).toBe(false);
+      expect(game.winner).toBeNull();
+      expect(game.players[0].score).toBe(501);
     });
   });
 
@@ -191,6 +257,40 @@ describe('Game', () => {
       expect(clonedGame.isGameOver).toBe(true);
       expect(clonedGame.winner).toBe(clonedGame.players[0]);
       expect(clonedGame.winner).not.toBe(game.winner); // Different object references
+    });
+
+    it('should handle cloning a game with no winner correctly', () => {
+      // Game has no winner yet
+      expect(game.winner).toBeNull();
+      
+      const clonedGame = game.clone();
+      
+      // Clone should also have no winner
+      expect(clonedGame.winner).toBeNull();
+    });
+
+    it('should handle empty players array', () => {
+      // Create a game with no players
+      const emptyGame = new Game(GameType.X01, 501);
+      expect(emptyGame.players.length).toBe(0);
+      
+      // Clone the empty game
+      const clonedGame = emptyGame.clone();
+      
+      // Verify the clone also has no players
+      expect(clonedGame.players.length).toBe(0);
+    });
+  });
+
+  describe('currentPlayer getter', () => {
+    it('should return the current player based on the index', () => {
+      expect(game.currentPlayer).toBe(game.players[0]);
+      
+      game.nextTurn();
+      expect(game.currentPlayer).toBe(game.players[1]);
+      
+      game.nextTurn();
+      expect(game.currentPlayer).toBe(game.players[0]);
     });
   });
 });
