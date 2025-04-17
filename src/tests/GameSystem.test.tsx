@@ -61,8 +61,8 @@ const setupGame = async (player1Name = PLAYER_1, player2Name = PLAYER_2) => {
 
 // Helper to enter a manual score
 const enterManualScore = (
-  scoreInput: HTMLElement, 
-  submitButton: HTMLElement, 
+  scoreInput: HTMLElement,
+  submitButton: HTMLElement,
   score: string
 ): void => {
   fireEvent.change(scoreInput, { target: { value: score } });
@@ -77,19 +77,17 @@ const verifyPlayerState = async (
   otherPlayerScore: string | null
 ): Promise<void> => {
   await waitFor(() => {
-    const playerItems = screen.getAllByTestId(PLAYER_ITEM_TEST_ID);
-    
     // Find the current player's item
     const currentPlayerElement = screen.getByText(currentPlayerName).closest(PLAYER_ITEM);
     expect(currentPlayerElement).toHaveClass(BG_BLUE_100);
-    
+
     // Find the other player's item
     const otherPlayerElement = screen.getByText(otherPlayerName).closest(PLAYER_ITEM);
     expect(otherPlayerElement).not.toHaveClass(BG_BLUE_100);
-    
+
     // Verify turn message
     expect(screen.getByText(`${currentPlayerName}'${TURN_TO_THROW}`)).toBeInTheDocument();
-    
+
     // Verify scores if provided
     if (currentPlayerScore) {
       expect(currentPlayerElement).toHaveTextContent(currentPlayerScore);
@@ -109,7 +107,7 @@ describe('Darts Scorer System Test', () => {
     const playerItems = screen.getAllByTestId(PLAYER_ITEM_TEST_ID);
     expect(playerItems[0]).toHaveTextContent(STARTING_SCORE);
     expect(playerItems[1]).toHaveTextContent(STARTING_SCORE);
-    
+
     // Player 1 is highlighted as current player
     const player1Element = screen.getByText(PLAYER_1).closest(PLAYER_ITEM);
     expect(player1Element).toHaveClass(BG_BLUE_100);
@@ -152,7 +150,9 @@ describe('Darts Scorer System Test', () => {
         expect(mockVoiceRecognition.start).toHaveBeenCalled();
       });
     } else {
-      console.log('Voice input button not found in test environment, using manual input for Player 2');
+      console.log(
+        'Voice input button not found in test environment, using manual input for Player 2'
+      );
       enterManualScore(scoreInput, submitButton, '40');
     }
 
@@ -167,7 +167,7 @@ describe('Darts Scorer System Test', () => {
     const undoButton = screen.getByRole('button', { name: /Undo/ });
     expect(undoButton).toBeInTheDocument();
     fireEvent.click(undoButton);
-    
+
     // Verify Player 1's score is restored
     await verifyPlayerState(PLAYER_1, '441', PLAYER_2, '461');
 
@@ -177,13 +177,13 @@ describe('Darts Scorer System Test', () => {
 
     // Undo Player 1's first score
     fireEvent.click(undoButton);
-    
+
     // Verify both players' scores are back to starting and undo button is disabled
     await waitFor(() => {
       const playerItems = screen.getAllByTestId(PLAYER_ITEM_TEST_ID);
       expect(playerItems[0]).toHaveTextContent(STARTING_SCORE);
       expect(playerItems[1]).toHaveTextContent(STARTING_SCORE);
-      
+
       const undoButtonFinal = screen.getByRole('button', { name: /Undo/ });
       expect(undoButtonFinal).toBeDisabled();
     });
@@ -227,10 +227,10 @@ describe('Darts Scorer System Test', () => {
       () => {
         const playerItemsAfterVoice = screen.getAllByTestId(PLAYER_ITEM_TEST_ID);
         const expectedPlayer1Score = player1ScoreBeforeVoice - 40; // Should be 456 - 40 = 416
-        
+
         const player1ScoreMatchAfter = playerItemsAfterVoice[0].textContent?.match(/\d+/);
         const actualPlayer1Score = parseInt(player1ScoreMatchAfter?.[0] || '0');
-        
+
         expect(actualPlayer1Score).toBe(expectedPlayer1Score);
       },
       { timeout: 3000 }
