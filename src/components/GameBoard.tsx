@@ -41,22 +41,8 @@ const GameBoard: React.FC = () => {
         return;
       }
 
-      // Create a deep copy of the current game
-      const updatedGame = new Game(currentGame.type, currentGame.startingScore);
-
-      // Copy all players with their current scores and visit scores
-      currentGame.players.forEach(player => {
-        updatedGame.addPlayer(player.name);
-        // Set the score to match the original player's score
-        updatedGame.players[updatedGame.players.length - 1].score = player.score;
-        // Copy the visit scores
-        updatedGame.players[updatedGame.players.length - 1].visitScores = [...player.visitScores];
-      });
-
-      // Set the current player index to match the original game
-      updatedGame.currentPlayerIndex = currentGame.currentPlayerIndex;
-      // Copy the score history
-      updatedGame.scoreHistory = [...currentGame.scoreHistory];
+      // Create a deep copy of the current game using clone method
+      const updatedGame = currentGame.clone();
 
       // Record the score in the updated game
       updatedGame.recordScore(score);
@@ -77,22 +63,8 @@ const GameBoard: React.FC = () => {
       return;
     }
 
-    // Create a deep copy of the current game
-    const updatedGame = new Game(game.type, game.startingScore);
-
-    // Copy all players with their current scores and visit scores
-    game.players.forEach(player => {
-      updatedGame.addPlayer(player.name);
-      // Set the score to match the original player's score
-      updatedGame.players[updatedGame.players.length - 1].score = player.score;
-      // Copy the visit scores
-      updatedGame.players[updatedGame.players.length - 1].visitScores = [...player.visitScores];
-    });
-
-    // Set the current player index to match the original game
-    updatedGame.currentPlayerIndex = game.currentPlayerIndex;
-    // Copy the score history
-    updatedGame.scoreHistory = [...game.scoreHistory];
+    // Create a deep copy of the current game using clone method
+    const updatedGame = game.clone();
 
     // Undo the last move
     updatedGame.undoLastMove();

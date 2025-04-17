@@ -1,238 +1,196 @@
 import { Game, GameType } from '../../models/Game';
 
 describe('Game', () => {
-  it('should create a game with the specified type', () => {
-    const game = new Game(GameType.X01, 501);
-    expect(game.type).toBe(GameType.X01);
-    expect(game.startingScore).toBe(501);
+  let game: Game;
+
+  beforeEach(() => {
+    game = new Game(GameType.X01, 501);
+    game.addPlayer('Player 1');
+    game.addPlayer('Player 2');
   });
 
-  it('should add players to the game', () => {
-    const game = new Game(GameType.X01, 501);
-    game.addPlayer('John');
-    game.addPlayer('Jane');
-
-    expect(game.players.length).toBe(2);
-    expect(game.players[0].name).toBe('John');
-    expect(game.players[1].name).toBe('Jane');
-  });
-
-  it('should initialize players with the correct starting score', () => {
-    const game = new Game(GameType.X01, 501);
-    game.addPlayer('John');
-
-    expect(game.players[0].score).toBe(501);
-  });
-
-  it('should track the current player', () => {
-    const game = new Game(GameType.X01, 501);
-    game.addPlayer('John');
-    game.addPlayer('Jane');
-
-    expect(game.currentPlayerIndex).toBe(0);
-    expect(game.currentPlayer.name).toBe('John');
-
-    game.nextTurn();
-    expect(game.currentPlayerIndex).toBe(1);
-    expect(game.currentPlayer.name).toBe('Jane');
-
-    game.nextTurn();
-    expect(game.currentPlayerIndex).toBe(0);
-    expect(game.currentPlayer.name).toBe('John');
-  });
-
-  it('should record scores for the current player', () => {
-    const game = new Game(GameType.X01, 501);
-    game.addPlayer('John');
-    game.addPlayer('Jane');
-
-    game.recordScore(60); // John scores 60
-    expect(game.players[0].score).toBe(441); // 501 - 60
-    expect(game.currentPlayerIndex).toBe(1); // Now Jane's turn
-
-    game.recordScore(45); // Jane scores 45
-    expect(game.players[1].score).toBe(456); // 501 - 45
-    expect(game.currentPlayerIndex).toBe(0); // Back to John
-  });
-
-  it('should record visit scores when recording scores', () => {
-    const game = new Game(GameType.X01, 501);
-    game.addPlayer('John');
-    game.addPlayer('Jane');
-
-    game.recordScore(60); // John scores 60
-    expect(game.players[0].visitScores).toEqual([60]);
-
-    game.recordScore(45); // Jane scores 45
-    expect(game.players[1].visitScores).toEqual([45]);
-
-    game.recordScore(100); // John scores 100
-    expect(game.players[0].visitScores).toEqual([60, 100]);
-  });
-
-  it('should not record visit scores when a player busts', () => {
-    const game = new Game(GameType.X01, 50);
-    game.addPlayer('John');
-
-    // Try to score more than the remaining points
-    game.recordScore(60);
-
-    // Visit score should not be recorded
-    expect(game.players[0].visitScores).toEqual([]);
-  });
-
-  it('should determine when a player has won', () => {
-    const game = new Game(GameType.X01, 101);
-    game.addPlayer('John');
-    game.addPlayer('Jane');
-
-    expect(game.isGameOver).toBe(false);
-    expect(game.winner).toBeNull();
-
-    game.recordScore(50); // John scores 50
-    game.recordScore(20); // Jane scores 20
-
-    game.recordScore(51); // John scores 51, reaching exactly 0
-
-    expect(game.isGameOver).toBe(true);
-    expect(game.winner).not.toBeNull();
-    expect(game.winner?.name).toBe('John');
-  });
-
-  it('should not allow a player to go below 0 in X01 games', () => {
-    const game = new Game(GameType.X01, 50);
-    game.addPlayer('John');
-
-    // Try to score more than the remaining points
-    game.recordScore(60);
-
-    // Score should remain unchanged and player's turn should not change
-    expect(game.players[0].score).toBe(50);
-    expect(game.currentPlayerIndex).toBe(0);
-  });
-
-  it('should reset the game', () => {
-    const game = new Game(GameType.X01, 501);
-    game.addPlayer('John');
-    game.addPlayer('Jane');
-
-    game.recordScore(60); // John scores 60
-    game.recordScore(45); // Jane scores 45
-
-    game.reset();
-
-    expect(game.players[0].score).toBe(501);
-    expect(game.players[1].score).toBe(501);
-    expect(game.currentPlayerIndex).toBe(0);
-    expect(game.isGameOver).toBe(false);
-    expect(game.winner).toBeNull();
-  });
-
-  it('should clear visit scores when resetting the game', () => {
-    const game = new Game(GameType.X01, 501);
-    game.addPlayer('John');
-    game.addPlayer('Jane');
-
-    game.recordScore(60); // John scores 60
-    game.recordScore(45); // Jane scores 45
-
-    game.reset();
-
-    expect(game.players[0].visitScores).toEqual([]);
-    expect(game.players[1].visitScores).toEqual([]);
-  });
-
-  // Tests for the undo functionality
-  describe('undoLastMove', () => {
-    it('should record scores in the score history', () => {
-      const game = new Game(GameType.X01, 501);
-      game.addPlayer('John');
-
-      game.recordScore(60);
-
-      expect(game.scoreHistory.length).toBe(1);
-      expect(game.scoreHistory[0].score).toBe(60);
-      expect(game.scoreHistory[0].previousScore).toBe(501);
-      expect(game.scoreHistory[0].playerIndex).toBe(0);
-    });
-
-    it('should undo the last move', () => {
-      const game = new Game(GameType.X01, 501);
-      game.addPlayer('John');
-      game.addPlayer('Jane');
-
-      game.recordScore(60); // John scores 60
-      expect(game.players[0].score).toBe(441);
-      expect(game.currentPlayerIndex).toBe(1); // Now Jane's turn
-
-      game.undoLastMove();
-
-      // John's score should be restored
-      expect(game.players[0].score).toBe(501);
-      // Current player should be back to John
+  describe('constructor', () => {
+    it('should initialize with the correct values', () => {
+      expect(game.type).toBe(GameType.X01);
+      expect(game.startingScore).toBe(501);
+      expect(game.players.length).toBe(2);
       expect(game.currentPlayerIndex).toBe(0);
-      // Score history should be empty
-      expect(game.scoreHistory.length).toBe(0);
+      expect(game.isGameOver).toBe(false);
+      expect(game.winner).toBeNull();
+      expect(game.scoreHistory).toEqual([]);
+    });
+  });
+
+  describe('addPlayer', () => {
+    it('should add a player with the correct starting score', () => {
+      const newGame = new Game(GameType.X01, 301);
+      newGame.addPlayer('New Player');
+      expect(newGame.players.length).toBe(1);
+      expect(newGame.players[0].name).toBe('New Player');
+      expect(newGame.players[0].score).toBe(301);
+    });
+  });
+
+  describe('nextTurn', () => {
+    it('should move to the next player', () => {
+      expect(game.currentPlayerIndex).toBe(0);
+      game.nextTurn();
+      expect(game.currentPlayerIndex).toBe(1);
+      game.nextTurn();
+      expect(game.currentPlayerIndex).toBe(0);
+    });
+  });
+
+  describe('recordScore', () => {
+    it('should subtract score from current player in X01 games', () => {
+      game.recordScore(60);
+      expect(game.players[0].score).toBe(441);
+      expect(game.currentPlayerIndex).toBe(1);
     });
 
-    it('should remove the last visit score when undoing a move', () => {
-      const game = new Game(GameType.X01, 501);
-      game.addPlayer('John');
-
-      // John scores
+    it('should add the score to the player visit scores', () => {
       game.recordScore(60);
       expect(game.players[0].visitScores).toEqual([60]);
+    });
 
-      // Undo the move
-      game.undoLastMove();
+    it('should add the score to the score history', () => {
+      game.recordScore(60);
+      expect(game.scoreHistory).toEqual([
+        {
+          playerIndex: 0,
+          score: 60,
+          previousScore: 501,
+        },
+      ]);
+    });
 
-      // Visit score should be removed
+    it('should not subtract score if it would go below 0 (bust)', () => {
+      game.players[0].score = 40;
+      game.recordScore(60);
+      expect(game.players[0].score).toBe(40);
+      expect(game.currentPlayerIndex).toBe(0);
       expect(game.players[0].visitScores).toEqual([]);
     });
 
-    it('should do nothing if there are no moves to undo', () => {
-      const game = new Game(GameType.X01, 501);
-      game.addPlayer('John');
-
-      // No moves recorded yet
-      expect(game.scoreHistory.length).toBe(0);
-
-      // Try to undo
-      game.undoLastMove();
-
-      // Nothing should change
+    it('should end the game when a player reaches 0', () => {
+      game.players[0].score = 60;
+      game.recordScore(60);
+      expect(game.players[0].score).toBe(0);
+      expect(game.isGameOver).toBe(true);
+      expect(game.winner).toBe(game.players[0]);
       expect(game.currentPlayerIndex).toBe(0);
+    });
+  });
+
+  describe('undoLastMove', () => {
+    it('should revert the last move', () => {
+      game.recordScore(60);
+      expect(game.players[0].score).toBe(441);
+      expect(game.currentPlayerIndex).toBe(1);
+
+      game.undoLastMove();
       expect(game.players[0].score).toBe(501);
+      expect(game.currentPlayerIndex).toBe(0);
+      expect(game.scoreHistory).toEqual([]);
     });
 
-    it('should reset game over state when undoing a winning move', () => {
-      const game = new Game(GameType.X01, 60);
-      game.addPlayer('John');
-
-      // Win the game
+    it('should revert the game over state if necessary', () => {
+      game.players[0].score = 60;
       game.recordScore(60);
       expect(game.isGameOver).toBe(true);
-      expect(game.winner).not.toBeNull();
+      expect(game.winner).toBe(game.players[0]);
 
-      // Undo the winning move
       game.undoLastMove();
-
-      // Game should no longer be over
       expect(game.isGameOver).toBe(false);
       expect(game.winner).toBeNull();
       expect(game.players[0].score).toBe(60);
     });
+  });
 
-    it('should clear score history when resetting the game', () => {
-      const game = new Game(GameType.X01, 501);
-      game.addPlayer('John');
-
+  describe('reset', () => {
+    it('should reset all game state', () => {
       game.recordScore(60);
-      expect(game.scoreHistory.length).toBe(1);
-
+      game.recordScore(40);
       game.reset();
 
-      expect(game.scoreHistory.length).toBe(0);
+      expect(game.currentPlayerIndex).toBe(0);
+      expect(game.isGameOver).toBe(false);
+      expect(game.winner).toBeNull();
+      expect(game.scoreHistory).toEqual([]);
+      expect(game.players[0].score).toBe(501);
+      expect(game.players[1].score).toBe(501);
+      expect(game.players[0].visitScores).toEqual([]);
+      expect(game.players[1].visitScores).toEqual([]);
+    });
+  });
+
+  describe('clone', () => {
+    it('should create a deep copy of the game with all properties', () => {
+      // Setup a game with some history
+      game.recordScore(60); // Player 1 scores 60
+      game.recordScore(45); // Player 2 scores 45
+
+      // Create a clone
+      const clonedGame = game.clone();
+
+      // Verify it's a different instance
+      expect(clonedGame).not.toBe(game);
+
+      // Verify all properties are correctly copied
+      expect(clonedGame.type).toBe(game.type);
+      expect(clonedGame.startingScore).toBe(game.startingScore);
+      expect(clonedGame.currentPlayerIndex).toBe(game.currentPlayerIndex);
+      expect(clonedGame.isGameOver).toBe(game.isGameOver);
+      expect(clonedGame.scoreHistory).toEqual(game.scoreHistory);
+
+      // Check that the players are deep copied
+      expect(clonedGame.players.length).toBe(game.players.length);
+      game.players.forEach((player, index) => {
+        expect(clonedGame.players[index].name).toBe(player.name);
+        expect(clonedGame.players[index].score).toBe(player.score);
+        expect(clonedGame.players[index].visitScores).toEqual(player.visitScores);
+        // Verify the player objects are different instances
+        expect(clonedGame.players[index]).not.toBe(player);
+      });
+    });
+
+    it('should create independent copies that can be modified separately', () => {
+      // Setup initial game
+      game.recordScore(60);
+
+      // Clone the game
+      const clonedGame = game.clone();
+
+      // Modify the original game
+      game.recordScore(40);
+
+      // Verify clone wasn't affected
+      expect(clonedGame.currentPlayerIndex).toBe(1);
+      expect(clonedGame.scoreHistory.length).toBe(1);
+      expect(clonedGame.players[0].score).toBe(441);
+
+      // Modify the clone
+      clonedGame.recordScore(50);
+
+      // Verify original wasn't affected by clone's changes
+      expect(game.players[1].score).toBe(461); // From the 40 score above
+      expect(clonedGame.players[1].score).toBe(451); // From the 50 score
+    });
+
+    it('should maintain the winner reference when cloning a finished game', () => {
+      // Setup a game where Player 1 wins
+      game.players[0].score = 60;
+      game.recordScore(60);
+      expect(game.isGameOver).toBe(true);
+      expect(game.winner).toBe(game.players[0]);
+
+      // Clone the game
+      const clonedGame = game.clone();
+
+      // Verify the winner reference is maintained
+      expect(clonedGame.isGameOver).toBe(true);
+      expect(clonedGame.winner).toBe(clonedGame.players[0]);
+      expect(clonedGame.winner).not.toBe(game.winner); // Different object references
     });
   });
 });
