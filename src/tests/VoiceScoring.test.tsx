@@ -272,4 +272,62 @@ describe('Voice Scoring System Test', () => {
       expect(screen.getByRole('button', { name: NEW_GAME })).toBeInTheDocument();
     });
   });
+
+  it('should handle "count zero" voice commands', async () => {
+    // Render the full application
+    render(<App />);
+
+    // Set up the game with two players
+    const gameTypeSelect = screen.getByLabelText(GAME_TYPE_LABEL);
+    fireEvent.change(gameTypeSelect, { target: { value: GameType.X01 } });
+
+    const startingScoreInput = screen.getByLabelText(STARTING_SCORE_LABEL);
+    fireEvent.change(startingScoreInput, { target: { value: STARTING_SCORE } });
+
+    // Add first player
+    const playerNameInput = screen.getByLabelText(PLAYER_NAME_LABEL);
+    fireEvent.change(playerNameInput, { target: { value: PLAYER_1 } });
+    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
+
+    // Add second player
+    fireEvent.change(playerNameInput, { target: { value: PLAYER_2 } });
+    fireEvent.click(screen.getByRole('button', { name: ADD_PLAYER }));
+
+    // Start the game
+    fireEvent.click(screen.getByRole('button', { name: START_GAME }));
+
+    // Wait for the game to start
+    await waitFor(() => {
+      expect(screen.getByText(`${STARTING_SCORE} X01`)).toBeInTheDocument();
+      expect(screen.getByText(`${PLAYER_1}${TURN_TO_THROW_TEXT}`)).toBeInTheDocument();
+    });
+
+    // Get the instance of the VoiceRecognition class
+    const voiceRecognitionInstance = voiceRecognitionModule.VoiceRecognition.mock.results[0].value;
+    const voiceButton = screen.getByText('🎤');
+
+    // Player 1 scores with "count zero"
+    fireEvent.click(voiceButton);
+    await simulateVoiceInput(voiceRecognitionInstance, 'count zero');
+
+    // Verify that Player 1's score remains unchanged and it's Player 2's turn
+    await waitFor(() => {
+      const playerItems = screen.getAllByTestId(PLAYER_ITEM_TEST_ID);
+      const player1ScoreElement = playerItems[0].querySelector(SCORE_CLASS_SELECTOR);
+      expect(player1ScoreElement).toHaveTextContent('501'); // Still 501 after adding 0
+      expect(screen.getByText(`${PLAYER_2}${TURN_TO_THROW_TEXT}`)).toBeInTheDocument();
+    });
+
+    // Player 2 scores with "count 0" (numeric form)
+    fireEvent.click(voiceButton);
+    await simulateVoiceInput(voiceRecognitionInstance, 'count 0');
+
+    // Verify that Player 2's score remains unchanged and it's Player 1's turn
+    await waitFor(() => {
+      const playerItems = screen.getAllByTestId(PLAYER_ITEM_TEST_ID);
+      const player2ScoreElement = playerItems[1].querySelector(SCORE_CLASS_SELECTOR);
+      expect(player2ScoreElement).toHaveTextContent('501'); // Still 501 after adding 0
+      expect(screen.getByText(`${PLAYER_1}${TURN_TO_THROW_TEXT}`)).toBeInTheDocument();
+    });
+  });
 });

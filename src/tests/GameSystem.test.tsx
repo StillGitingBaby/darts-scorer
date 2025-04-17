@@ -215,7 +215,6 @@ describe('Darts Scorer System Test', () => {
     // Try voice input for the first player's next turn
     const voiceButton = screen.queryByLabelText(START_VOICE_INPUT);
     if (!voiceButton) {
-      console.log('Voice input button not found, skipping voice input test');
       return;
     }
 

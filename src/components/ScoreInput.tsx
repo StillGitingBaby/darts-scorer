@@ -116,6 +116,16 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
         return;
       }
 
+      // Handle "count zero" case specifically
+      if (lowerText.includes('count zero')) {
+        setScore('0');
+        onScoreSubmit(0);
+        setError('');
+        setScore('');
+        setShouldFocus(true);
+        return;
+      }
+
       // Extract the number that follows "count"
       const match = lowerText.match(/count\s+(\d+)/i);
       if (!match || !match[1]) {
@@ -210,7 +220,7 @@ const ScoreInput: React.FC<ScoreInputProps> = ({ onScoreSubmit, autoFocus = fals
         )}
         {isListening && (
           <div className="text-green-600 mt-2">
-            Listening... Say "count" followed by your score (e.g., "count 40").
+            Listening... Say "count" followed by your score (e.g., "count 40" or "count zero").
           </div>
         )}
         {lastHeardText && !isListening && (
