@@ -41,22 +41,8 @@ const GameBoard: React.FC = () => {
         return;
       }
 
-      // Create a deep copy of the current game
-      const updatedGame = new Game(currentGame.type, currentGame.startingScore);
-
-      // Copy all players with their current scores and visit scores
-      currentGame.players.forEach(player => {
-        updatedGame.addPlayer(player.name);
-        // Set the score to match the original player's score
-        updatedGame.players[updatedGame.players.length - 1].score = player.score;
-        // Copy the visit scores
-        updatedGame.players[updatedGame.players.length - 1].visitScores = [...player.visitScores];
-      });
-
-      // Set the current player index to match the original game
-      updatedGame.currentPlayerIndex = currentGame.currentPlayerIndex;
-      // Copy the score history
-      updatedGame.scoreHistory = [...currentGame.scoreHistory];
+      // Create a deep copy of the current game using clone method
+      const updatedGame = currentGame.clone();
 
       // Record the score in the updated game
       updatedGame.recordScore(score);
@@ -77,22 +63,8 @@ const GameBoard: React.FC = () => {
       return;
     }
 
-    // Create a deep copy of the current game
-    const updatedGame = new Game(game.type, game.startingScore);
-
-    // Copy all players with their current scores and visit scores
-    game.players.forEach(player => {
-      updatedGame.addPlayer(player.name);
-      // Set the score to match the original player's score
-      updatedGame.players[updatedGame.players.length - 1].score = player.score;
-      // Copy the visit scores
-      updatedGame.players[updatedGame.players.length - 1].visitScores = [...player.visitScores];
-    });
-
-    // Set the current player index to match the original game
-    updatedGame.currentPlayerIndex = game.currentPlayerIndex;
-    // Copy the score history
-    updatedGame.scoreHistory = [...game.scoreHistory];
+    // Create a deep copy of the current game using clone method
+    const updatedGame = game.clone();
 
     // Undo the last move
     updatedGame.undoLastMove();
@@ -108,13 +80,9 @@ const GameBoard: React.FC = () => {
   const handleResetGame = useCallback(() => {
     if (!game) return;
 
-    // Create a new game with the same settings
-    const resetGame = new Game(game.type, game.startingScore);
-
-    // Add all players with reset scores
-    game.players.forEach(player => {
-      resetGame.addPlayer(player.name);
-    });
+    // Use the game's reset method instead of manually creating a new game
+    const resetGame = game.clone();
+    resetGame.reset();
 
     setGame(resetGame);
     setGameOver(false);
@@ -126,13 +94,12 @@ const GameBoard: React.FC = () => {
   }, []);
 
   // Helper function to determine if we should show checkout routes
-  const shouldShowCheckoutRoutes = (): boolean => {
-    if (!game || gameOver || game.type !== GameType.X01) {
-      return false;
-    }
-    // Only show checkout routes for X01 games when score is at or below MAX_CHECKOUT_SCORE
-    return game.currentPlayer && game.currentPlayer.score <= MAX_CHECKOUT_SCORE;
-  };
+  const shouldShowCheckoutRoutes = (): boolean =>
+    !!game &&
+    !gameOver &&
+    game.type === GameType.X01 &&
+    game.currentPlayer &&
+    game.currentPlayer.score <= MAX_CHECKOUT_SCORE;
 
   // Helper function to get the undo button text
   const getUndoButtonText = (): string => {
@@ -178,21 +145,24 @@ const GameBoard: React.FC = () => {
             </div>
           </div>
 
-          {gameOver ? (
-            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4">
-              <p className="font-bold">Game Over!</p>
-              <p>{game.winner ? `${game.winner.name} has won the game!` : 'The game has ended.'}</p>
-            </div>
-          ) : (
-            <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4">
-              <p className="font-bold">Current Turn</p>
-              <p>
-                {game.players.length > 0
+          <div
+            className={`border-l-4 p-4 mb-4 ${
+              gameOver
+                ? 'bg-green-100 border-green-500 text-green-700'
+                : 'bg-blue-100 border-blue-500 text-blue-700'
+            }`}
+          >
+            <p className="font-bold">{gameOver ? 'Game Over!' : 'Current Turn'}</p>
+            <p>
+              {gameOver
+                ? game.winner
+                  ? `${game.winner.name} has won the game!`
+                  : 'The game has ended.'
+                : game.players.length > 0
                   ? `${game.currentPlayer.name}'s turn to throw`
                   : 'No players added yet'}
-              </p>
-            </div>
-          )}
+            </p>
+          </div>
 
           {/* Show checkout routes for X01 games when not game over */}
           {shouldShowCheckoutRoutes() && game.currentPlayer && (

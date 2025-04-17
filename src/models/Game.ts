@@ -119,4 +119,33 @@ export class Game {
     this.winner = null;
     this.scoreHistory = [];
   }
+
+  /**
+   * Creates a deep copy of the current game instance
+   * @returns A new Game instance with copied properties
+   */
+  clone(): Game {
+    // Create a new game with the same settings
+    const clonedGame = new Game(this.type, this.startingScore);
+
+    // Deep copy all players with their scores and visit histories
+    this.players.forEach(player => {
+      clonedGame.addPlayer(player.name);
+      // Get the last added player
+      const clonedPlayer = clonedGame.players[clonedGame.players.length - 1];
+      // Copy the score
+      clonedPlayer.score = player.score;
+      // Deep copy the visit scores
+      clonedPlayer.visitScores = [...player.visitScores];
+    });
+
+    // Copy game state
+    clonedGame.currentPlayerIndex = this.currentPlayerIndex;
+    clonedGame.isGameOver = this.isGameOver;
+    clonedGame.winner = this.winner ? clonedGame.players[this.players.indexOf(this.winner)] : null;
+    // Deep copy score history
+    clonedGame.scoreHistory = [...this.scoreHistory];
+
+    return clonedGame;
+  }
 }
