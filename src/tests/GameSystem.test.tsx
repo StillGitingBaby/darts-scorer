@@ -269,11 +269,6 @@ describe('Darts Scorer System Test', () => {
         expect(player2Element).not.toHaveClass(BG_BLUE_100);
       });
     } else {
-      // Manual fallback for testing environments without voice recognition
-      console.log(
-        'Voice input button not found in test environment, using manual input for Player 2'
-      );
-
       // Submit a score manually for Player 2
       fireEvent.change(scoreInput, { target: { value: '40' } });
       fireEvent.click(submitButton);
@@ -422,11 +417,6 @@ describe('Darts Scorer System Test', () => {
         expect(mockVoiceRecognition.start).toHaveBeenCalled();
       });
     } else {
-      // Manual fallback for testing environments without voice recognition
-      console.log(
-        'Voice input button not found in test environment, using manual input for Player 2'
-      );
-
       // Submit a score manually for Player 2
       fireEvent.change(scoreInput, { target: { value: '40' } });
       fireEvent.click(submitButton);
@@ -606,7 +596,6 @@ describe('Darts Scorer System Test', () => {
 
     // Skip voice test if button not available in test environment
     if (!voiceButton) {
-      console.log('Voice input button not found, skipping voice input test');
       return;
     }
 
