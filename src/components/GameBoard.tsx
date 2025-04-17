@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 import CheckoutDisplay from './CheckoutDisplay';
 import GameSetup from './GameSetup';
@@ -10,6 +10,12 @@ import { MAX_CHECKOUT_SCORE } from '../utils/checkoutRoutes';
 const GameBoard: React.FC = () => {
   const [game, setGame] = useState<Game | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
+  const gameRef = useRef<Game | null>(null);
+
+  // Keep gameRef in sync with game state
+  useEffect(() => {
+    gameRef.current = game;
+  }, [game]);
 
   const handleGameStart = useCallback(
     (gameConfig: { gameType: GameType; startingScore: number; playerNames: string[] }) => {
@@ -28,13 +34,18 @@ const GameBoard: React.FC = () => {
 
   const handleScoreSubmit = useCallback(
     (score: number) => {
-      if (!game || gameOver) return;
+      // Always use the current game reference to ensure we have the latest state
+      const currentGame = gameRef.current;
+
+      if (!currentGame || gameOver) {
+        return;
+      }
 
       // Create a deep copy of the current game
-      const updatedGame = new Game(game.type, game.startingScore);
+      const updatedGame = new Game(currentGame.type, currentGame.startingScore);
 
       // Copy all players with their current scores and visit scores
-      game.players.forEach(player => {
+      currentGame.players.forEach(player => {
         updatedGame.addPlayer(player.name);
         // Set the score to match the original player's score
         updatedGame.players[updatedGame.players.length - 1].score = player.score;
@@ -43,9 +54,9 @@ const GameBoard: React.FC = () => {
       });
 
       // Set the current player index to match the original game
-      updatedGame.currentPlayerIndex = game.currentPlayerIndex;
+      updatedGame.currentPlayerIndex = currentGame.currentPlayerIndex;
       // Copy the score history
-      updatedGame.scoreHistory = [...game.scoreHistory];
+      updatedGame.scoreHistory = [...currentGame.scoreHistory];
 
       // Record the score in the updated game
       updatedGame.recordScore(score);
@@ -58,11 +69,13 @@ const GameBoard: React.FC = () => {
         setGameOver(true);
       }
     },
-    [game, gameOver]
+    [gameOver]
   );
 
   const handleUndoLastScore = useCallback(() => {
-    if (!game || game.scoreHistory.length === 0) return;
+    if (!game || game.scoreHistory.length === 0) {
+      return;
+    }
 
     // Create a deep copy of the current game
     const updatedGame = new Game(game.type, game.startingScore);
@@ -80,6 +93,7 @@ const GameBoard: React.FC = () => {
     updatedGame.currentPlayerIndex = game.currentPlayerIndex;
     // Copy the score history
     updatedGame.scoreHistory = [...game.scoreHistory];
+
     // Undo the last move
     updatedGame.undoLastMove();
 

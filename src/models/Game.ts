@@ -78,7 +78,9 @@ export class Game {
   }
 
   undoLastMove(): void {
-    if (this.scoreHistory.length === 0) return;
+    if (this.scoreHistory.length === 0) {
+      return;
+    }
 
     // Get the last move
     const lastMove = this.scoreHistory.pop();
@@ -93,6 +95,7 @@ export class Game {
     // Go back to the previous player
     // We need to adjust the index to go back to the previous player
     this.currentPlayerIndex = lastMove.playerIndex;
+
     // Get the player who made the last move
     const player = this.players[lastMove.playerIndex];
     // Remove the last visit score
